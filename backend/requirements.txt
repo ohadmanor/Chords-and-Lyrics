@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+librosa
+numpy
+soundfile
+pydantic
+python-multipart
+syncedlyrics
+yt-dlp
+youtube-transcript-api
