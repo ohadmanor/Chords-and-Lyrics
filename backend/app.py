@@ -653,6 +653,49 @@ async def load_project():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to load project: {str(e)}")
 
+def get_static_dir():
+    if getattr(sys, 'frozen', False):
+        base_path = sys._MEIPASS
+        return os.path.join(base_path, "static")
+    else:
+        return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "dist", "frontend", "browser"))
+
+def open_browser():
+    import webbrowser
+    import time
+    time.sleep(1.5)
+    webbrowser.open("http://127.0.0.1:8000")
+
+@app.on_event("startup")
+def on_startup():
+    import threading
+    threading.Thread(target=open_browser, daemon=True).start()
+
+@app.get("/{catchall:path}")
+def serve_spa(request: Request, catchall: str):
+    if catchall.startswith("api/"):
+        raise HTTPException(status_code=404, detail="API endpoint not found")
+        
+    static_dir = get_static_dir()
+    clean_path = os.path.normpath(catchall).lstrip(os.path.sep)
+    if clean_path == "." or clean_path == "":
+        file_path = os.path.join(static_dir, "index.html")
+    else:
+        file_path = os.path.join(static_dir, clean_path)
+        
+    if os.path.exists(file_path) and os.path.isfile(file_path):
+        return FileResponse(file_path)
+        
+    index_path = os.path.join(static_dir, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+        
+    raise HTTPException(status_code=404, detail="Not Found")
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)
+    is_frozen = getattr(sys, 'frozen', False)
+    if is_frozen:
+        uvicorn.run(app, host="127.0.0.1", port=8000)
+    else:
+        uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)

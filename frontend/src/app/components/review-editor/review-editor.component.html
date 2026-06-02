@@ -1,0 +1,152 @@
+<div class="view-container">
+  <div class="view-header" style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h2>Verify & Edit</h2>
+      <p>Review the extracted chords grouped by bars on the left, and check the song lyrics on the right.</p>
+    </div>
+    
+    <div style="display: flex; gap: 15px; align-items: center;">
+      <!-- BPM Info Tip -->
+      <div class="info-tip" style="margin: 0; padding: 8px 12px; background: var(--primary-glow); border-style: solid; display: flex; align-items: center; gap: 6px;">
+        <svg lucideActivity style="width: 16px; height: 16px;"></svg>
+        <span style="font-weight: 600; color: var(--text-main);">BPM: {{ bpm ? bpm.toFixed(0) : '--' }}</span>
+      </div>
+
+      <!-- Lyrics Start Bar Selector -->
+      <div class="info-tip" style="margin: 0; padding: 8px 12px; background: rgba(255, 255, 255, 0.05); border-style: solid; display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Lyrics Start:</span>
+        <select
+          [value]="startBarIdx"
+          (change)="startBarIdx = +$any($event.target).value"
+          style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: #fff; padding: 2px 8px; border-radius: 4px; outline: none; cursor: pointer; font-size: 0.8rem; font-weight: 600;"
+        >
+          <option *ngFor="let bar of localBars; let idx = index" [value]="idx" style="background: #0f172a;">
+            Bar {{ bar.bar_index }} ({{ bar.time.toFixed(1) }}s)
+          </option>
+        </select>
+      </div>
+
+      <!-- Approve Buttons -->
+      <button class="btn btn-primary" (click)="handleApproveClick()">
+        <svg lucideCheck style="width: 16px; height: 16px;"></svg>
+        {{ autoSynced ? 'Approve & Sync' : 'Approve & Go to Sync' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="editor-grid">
+    <!-- Left Panel: Bar-by-bar Chord Grid -->
+    <div class="editor-section">
+      <div class="section-label">
+        <span>Chords Arranged by 4/4 Bars</span>
+        <span style="font-size: 0.7rem; text-transform: none; opacity: 0.6;">
+          Click row to seek player. Click bar badge to select Lyric Start bar.
+        </span>
+      </div>
+      
+      <div style="flex: 1; overflow-y: auto; background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: 10px; padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; align-content: start;">
+        <div *ngIf="localBars.length === 0" style="grid-column: 1 / -1; margin: auto; text-align: center; opacity: 0.5; padding: 40px 0;">
+          <svg lucideMusic style="width: 32px; height: 32px; margin-bottom: 10px;"></svg>
+          <p>No bars detected. Chords list is empty.</p>
+        </div>
+
+        <ng-container *ngIf="localBars.length > 0">
+          <div 
+            *ngFor="let bar of localBars; let barIdx = index"
+            #barCard
+            [attr.id]="barIdx === activeBarIndex ? 'active-bar-ref' : null"
+            (click)="handleBarClick(bar.time)"
+            [ngStyle]="{
+              'background': barIdx === activeBarIndex 
+                ? (barIdx === startBarIdx ? 'rgba(168, 85, 247, 0.25)' : 'var(--primary-glow)') 
+                : (barIdx === startBarIdx ? 'var(--secondary-glow)' : 'rgba(255, 255, 255, 0.02)'),
+              'border-color': barIdx === activeBarIndex 
+                ? (barIdx === startBarIdx ? 'var(--secondary)' : 'var(--primary)') 
+                : (barIdx === startBarIdx ? 'var(--secondary)' : 'var(--border-color)'),
+              'box-shadow': barIdx === activeBarIndex 
+                ? (barIdx === startBarIdx ? 'var(--shadow-glow-purple)' : 'var(--shadow-glow)') 
+                : 'none'
+            }"
+            style="display: flex; flex-direction: column; gap: 8px; border: 1px solid; padding: 8px 10px; border-radius: 8px; transition: all 0.2s ease; cursor: pointer; position: relative;"
+          >
+            <!-- Top Row: Bar label & Start indicator -->
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div 
+                (click)="selectStartBar(barIdx, $event)"
+                [ngStyle]="{
+                  'background': barIdx === startBarIdx ? 'var(--secondary)' : 'rgba(255, 255, 255, 0.05)',
+                  'border-color': barIdx === startBarIdx ? 'var(--secondary)' : 'rgba(255, 255, 255, 0.08)',
+                  'color': barIdx === startBarIdx ? '#fff' : 'var(--text-muted)'
+                }"
+                style="font-size: 0.75rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; border: 1px solid; transition: all 0.2s; user-select: none;"
+                title="Set as lyrics start bar"
+              >
+                Bar {{ bar.bar_index }}
+              </div>
+              
+              <div 
+                *ngIf="barIdx === startBarIdx"
+                style="font-size: 0.6rem; color: var(--secondary); font-weight: 700; display: flex; align-items: center; gap: 2px;"
+              >
+                <svg lucideActivity style="width: 10px; height: 10px;"></svg>
+                <span>Start</span>
+              </div>
+              
+              <div 
+                *ngIf="barIdx === activeBarIndex && barIdx !== startBarIdx"
+                style="width: 6px; height: 6px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 6px var(--primary);"
+              ></div>
+            </div>
+            
+            <!-- Bottom Row: Chords Inputs -->
+            <div 
+              style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;"
+              (click)="$event.stopPropagation()"
+            >
+              <input
+                *ngFor="let chord of bar.chords; let beatIdx = index"
+                type="text"
+                [value]="getDisplayValue(barIdx, beatIdx)"
+                [placeholder]="getDisplayValue(barIdx, beatIdx) ? '' : (getInheritedChord(barIdx, beatIdx) ? '(' + getInheritedChord(barIdx, beatIdx) + ')' : '-')"
+                (input)="handleChordChange(barIdx, beatIdx, $event)"
+                [ngStyle]="{
+                  'color': getDisplayValue(barIdx, beatIdx) ? '#38bdf8' : 'rgba(148, 163, 184, 0.4)',
+                  'font-weight': getDisplayValue(barIdx, beatIdx) ? '700' : '400'
+                }"
+                style="background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color); border-radius: 4px; padding: 4px 2px; text-align: center; fontSize: 0.75rem; outline: none; width: 100%; transition: all 0.2s;"
+                (focus)="$any($event.target).style.borderColor = 'var(--primary)'; $any($event.target).style.background = 'rgba(0,0,0,0.5)'"
+                (blur)="$any($event.target).style.borderColor = 'var(--border-color)'; $any($event.target).style.background = 'rgba(0,0,0,0.3)'"
+              />
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- Right Panel: Lyrics Textarea -->
+    <div class="viewer-section">
+      <div class="section-label">
+        <span>Lyrics Text Editor</span>
+        <span style="font-size: 0.7rem; text-transform: none; opacity: 0.6;">
+          Review or paste standard lyrics lines
+        </span>
+      </div>
+      
+      <textarea
+        class="lyrics-textarea"
+        placeholder="Paste raw lyrics line-by-line here..."
+        [(ngModel)]="localLyrics"
+        [ngStyle]="{
+          'direction': hasHebrew(localLyrics) ? 'rtl' : 'ltr',
+          'text-align': hasHebrew(localLyrics) ? 'right' : 'left'
+        }"
+        style="height: 100%;"
+      ></textarea>
+    </div>
+  </div>
+
+  <div class="info-tip" style="margin-top: 15px;">
+    <svg lucideInfo style="width: 14px; height: 14px;"></svg>
+    <span>Verification tip: Reviewing and correcting chords here ensures that when you sync the lyrics, chord alignments will be precise and stable.</span>
+  </div>
+</div>
