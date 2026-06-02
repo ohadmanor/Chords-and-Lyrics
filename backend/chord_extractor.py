@@ -11,6 +11,69 @@ CHORD_NAMES = [
 
 PITCH_NAMES = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
 
+def get_fifth_distance(p1, p2):
+    """
+    Get the distance between two pitch class roots p1 and p2 on the Circle of Fifths.
+    Arrangement: C(0)-G(7)-D(2)-A(9)-E(4)-B(11)-F#(6)-C#(1)-Ab(8)-Eb(3)-Bb(10)-F(5)
+    Returns an integer distance between 0 (same pitch) and 6 (tritone).
+    """
+    pos1 = (p1 * 7) % 12
+    pos2 = (p2 * 7) % 12
+    diff = abs(pos1 - pos2)
+    return min(diff, 12 - diff)
+
+def construct_transition_matrix(num_states=25, self_trans=0.92, alpha=0.5):
+    """
+    Construct transition probability matrix where chord-to-chord transitions
+    are weighted based on their distance on the Circle of Fifths.
+    """
+    transition = np.zeros((num_states, num_states))
+    
+    for s1 in range(num_states):
+        for s2 in range(num_states):
+            if s1 == s2:
+                transition[s1, s2] = self_trans
+            elif s1 == 24 or s2 == 24:
+                # Flat transition probability to/from silence
+                transition[s1, s2] = (1.0 - self_trans) / (num_states - 1)
+            else:
+                # Chord-to-chord transition
+                p1 = s1 % 12
+                p2 = s2 % 12
+                d = get_fifth_distance(p1, p2)
+                
+                # Exponential decay weight based on Circle of Fifths distance
+                weight = np.exp(-alpha * d)
+                
+                # Boost relative major/minor key transitions (e.g. C major (0) <-> A minor (21))
+                is_m1 = s1 >= 12
+                is_m2 = s2 >= 12
+                if is_m1 != is_m2:
+                    maj_root = p1 if not is_m1 else p2
+                    min_root = p2 if is_m2 else p1
+                    if (maj_root - min_root) % 12 == 3:
+                        weight *= 1.5
+                        
+                transition[s1, s2] = weight
+                
+        # Normalize non-self transition probabilities to sum to (1.0 - self_trans)
+        non_self_indices = [idx for idx in range(num_states) if idx != s1]
+        row_sum = np.sum(transition[s1, non_self_indices])
+        if row_sum > 0:
+            transition[s1, non_self_indices] = transition[s1, non_self_indices] / row_sum * (1.0 - self_trans)
+            transition[s1, s1] = self_trans
+            
+    return transition
+
+def smooth_vector(vec, window_size=3):
+    """
+    Applies a moving average filter to smooth chroma features across beats.
+    """
+    if len(vec) < window_size:
+        return vec
+    filt = np.ones(window_size) / window_size
+    return np.convolve(vec, filt, mode='same')
+
 def generate_templates():
     """
     Generate pitch templates for 12 Major and 12 Minor chords.
@@ -176,7 +239,7 @@ def extract_chords_from_audio(audio_path, progress_callback=None):
     for note in range(12):
         bass_chroma_sync[note, :] = np.sum(cqt_sync[[note, note+12, note+24], :], axis=0)
         treble_chroma_sync[note, :] = np.sum(cqt_sync[[note+36, note+48, note+60], :], axis=0)
-        
+
     if progress_callback:
         progress_callback("Running Viterbi decoding...", 0.8)
         
