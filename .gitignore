@@ -23,6 +23,10 @@ frontend/dist/
 dist/
 build/
 
+# Angular cache & PyInstaller spec
+frontend/.angular/
+*.spec
+
 # IDE files
 .vscode/
 .idea/
