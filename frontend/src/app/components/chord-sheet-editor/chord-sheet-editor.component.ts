@@ -68,14 +68,105 @@ export class ChordSheetEditorComponent implements OnInit, OnChanges, AfterViewCh
   }
 
   public handleTextChange(value: string) {
-    this.chordsheetText = value;
-    this.chordsheetTextChange.emit(value);
+    // The textarea shows a mirrored view for Hebrew songs (chord columns
+    // flipped to match the Interactive Viewer). Convert back to the canonical
+    // (logical) representation before storing/emitting. mirrorSheet is
+    // self-inverse, so applying it again restores the original layout.
+    const canonical = this.hasHebrew(value) ? this.mirrorSheet(value) : value;
+    this.chordsheetText = canonical;
+    this.chordsheetTextChange.emit(canonical);
     this.blocks = this.parseBlocks();
     this.updateActiveBlockIndex();
   }
 
   public hasHebrew(text: string): boolean {
     return /[\u0590-\u05FF]/.test(text || '');
+  }
+
+  public get isHebrewSong(): boolean {
+    return this.hasHebrew(this.chordsheetText);
+  }
+
+  /**
+   * Text shown in the monospace editor. For Hebrew songs the chord lines are
+   * mirrored so the editor matches the Interactive Viewer (first chord on the
+   * right above the first sung syllable). English songs are shown as-is.
+   */
+  public get displayChordsheetText(): string {
+    return this.isHebrewSong ? this.mirrorSheet(this.chordsheetText) : this.chordsheetText;
+  }
+
+  /** A bars/instrumental line (e.g. "// C / G //") has no paired lyric line. */
+  public isBarsLine(block: ChordSheetBlock): boolean {
+    return !block.lyricLine || !block.lyricLine.trim();
+  }
+
+  /**
+   * Chord line shown for a block. English songs and bars-only lines are
+   * returned unchanged (rendered LTR). For Hebrew songs the chord columns are
+   * mirrored so the first chord (earliest time, logical column 0) lands above
+   * the first sung syllable, which sits on the right for RTL lyrics. Each chord
+   * token keeps its readable left-to-right spelling.
+   */
+  public displayChordLine(block: ChordSheetBlock): string {
+    if (!this.isHebrewSong || this.isBarsLine(block)) {
+      return block.chordLine;
+    }
+    return this.mirrorChordLine(block.chordLine, block.lyricLine);
+  }
+
+  /**
+   * Mirror every chord line in a full chord sheet relative to its paired lyric
+   * line, using the same block pairing as the viewer. Bars-only/instrumental
+   * lines (no lyric) and blank separators are left untouched. This function is
+   * its own inverse, so it converts both canonical->display and display->canonical.
+   */
+  private mirrorSheet(text: string): string {
+    if (!text) return text;
+    const lines = text.split('\n');
+    const out: string[] = [];
+    let i = 0;
+    while (i < lines.length) {
+      if (!lines[i].trim()) {
+        out.push(lines[i]);
+        i++;
+        continue;
+      }
+      const chordLine = lines[i];
+      const lyricLine = (i + 1 < lines.length) ? lines[i + 1] : '';
+      if (!lyricLine.trim()) {
+        // Bars/instrumental line: no paired lyric, keep as-is.
+        out.push(chordLine);
+        i++;
+      } else {
+        out.push(this.mirrorChordLine(chordLine, lyricLine));
+        out.push(lyricLine);
+        i += 2;
+      }
+    }
+    return out.join('\n');
+  }
+
+  private mirrorChordLine(chordLine: string, lyricLine: string): string {
+    const width = Math.max(chordLine.length, lyricLine.length);
+    if (width === 0) return chordLine;
+
+    const cells: string[] = new Array(width).fill(' ');
+    const tokenRegex = /\S+/g;
+    let match: RegExpExecArray | null;
+    while ((match = tokenRegex.exec(chordLine)) !== null) {
+      const token = match[0];
+      // Mirror the token so its right edge sits above the same lyric column.
+      let start = width - match.index - token.length;
+      if (start < 0) start = 0;
+      for (let k = 0; k < token.length; k++) {
+        const idx = start + k;
+        if (idx >= 0 && idx < width) {
+          cells[idx] = token[k];
+        }
+      }
+    }
+    return cells.join('');
   }
 
   private parseBlocks(): ChordSheetBlock[] {

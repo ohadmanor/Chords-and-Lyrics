@@ -22,12 +22,12 @@
       </div>
       <textarea
         class="chordsheet-textarea"
-        [ngModel]="chordsheetText"
+        [ngModel]="displayChordsheetText"
         (ngModelChange)="handleTextChange($event)"
         placeholder="C                     G&#10;When I find myself in times of trouble&#10;&#10;Am             F&#10;Mother Mary comes to me"
         spellcheck="false"
         [ngStyle]="{
-          'direction': hasHebrew(chordsheetText) ? 'rtl' : 'ltr',
+          'direction': 'ltr',
           'text-align': hasHebrew(chordsheetText) ? 'right' : 'left'
         }"
       ></textarea>
@@ -111,12 +111,23 @@
               [class.active]="idx === activeBlockIndex"
               (click)="handleSeek(block.time)"
               [ngStyle]="{
-                'direction': hasHebrew(block.lyricLine) ? 'rtl' : 'ltr',
-                'text-align': hasHebrew(block.lyricLine) ? 'right' : 'left'
+                'text-align': isHebrewSong ? 'right' : 'left'
               }"
             >
-              <div class="chord-line">{{ block.chordLine }}</div>
-              <div class="lyrics-line">{{ block.lyricLine }}</div>
+              <div
+                class="chord-line"
+                [ngStyle]="{
+                  'direction': 'ltr',
+                  'text-align': isHebrewSong ? 'right' : 'left'
+                }"
+              >{{ displayChordLine(block) }}</div>
+              <div
+                class="lyrics-line"
+                [ngStyle]="{
+                  'direction': isHebrewSong ? 'rtl' : 'ltr',
+                  'text-align': isHebrewSong ? 'right' : 'left'
+                }"
+              >{{ block.lyricLine }}</div>
             </div>
           </ng-container>
         </ng-container>
