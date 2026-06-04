@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, ElementRef, ViewChildren, QueryList, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideSave, LucideFileDown, LucideInfo, LucideHelpCircle } from '@lucide/angular';
+import { LucideFileDown, LucideInfo, LucideHelpCircle } from '@lucide/angular';
 import { BarData } from '../../services/api.service';
 
 interface ChordSheetBlock {
@@ -14,7 +14,7 @@ interface ChordSheetBlock {
 @Component({
   selector: 'app-chord-sheet-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideSave, LucideFileDown, LucideInfo, LucideHelpCircle],
+  imports: [CommonModule, FormsModule, LucideFileDown, LucideInfo, LucideHelpCircle],
   templateUrl: './chord-sheet-editor.component.html',
   styleUrls: []
 })
@@ -27,7 +27,6 @@ export class ChordSheetEditorComponent implements OnInit, OnChanges, AfterViewCh
 
   @Output() chordsheetTextChange = new EventEmitter<string>();
   @Output() onSeek = new EventEmitter<number>();
-  @Output() onSave = new EventEmitter<void>();
 
   @ViewChildren('barCard') barCards!: QueryList<ElementRef<HTMLDivElement>>;
   @ViewChildren('blockCard') blockCards!: QueryList<ElementRef<HTMLDivElement>>;

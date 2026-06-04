@@ -43,13 +43,6 @@
         <svg lucideFileText style="width: 16px; height: 16px;"></svg> 4. Play & Edit
       </button>
     </nav>
-
-    <!-- File Actions -->
-    <div style="display: flex; gap: 10px;">
-      <button class="btn btn-secondary" (click)="handleLoadProject()">
-        <svg lucideFolderOpen style="width: 16px; height: 16px;"></svg> Load Project
-      </button>
-    </div>
   </header>
 
   <!-- Main Workspace Panel -->
@@ -62,7 +55,7 @@
       </div>
       
       <!-- Success Alert -->
-      <div *ngIf="success" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); color: #a7f3d0; padding: 12px 16px; borderRadius: 8px; fontSize: 0.85rem; marginBottom: 20px;">
+      <div *ngIf="success" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); color: #047857; padding: 12px 16px; borderRadius: 8px; fontSize: 0.85rem; marginBottom: 20px;">
         <span>{{ success }}</span>
       </div>
 
@@ -83,7 +76,7 @@
           </div>
 
           <!-- Right Card: YouTube Input -->
-          <div class="glass-panel" style="background: rgba(0, 0, 0, 0.15); border: 1px solid var(--border-color); display: flex; flexDirection: column; justifyContent: center; padding: 30px; border-radius: 12px;">
+          <div class="glass-panel" style="background: var(--inset-bg); border: 1px solid var(--border-color); display: flex; flexDirection: column; justifyContent: center; padding: 30px; border-radius: 12px;">
             <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
               <div style="width: 28px; height: 28px; border-radius: 50%; background: rgba(239, 68, 68, 0.15); color: #ef4444; display: flex; align-items: center; justify-content: center;">
                 <svg lucidePlay style="width: 14px; height: 14px; fill: #ef4444;"></svg>
@@ -99,7 +92,7 @@
                 placeholder="https://www.youtube.com/watch?v=..." 
                 [(ngModel)]="youtubeUrl" 
                 (click)="$event.stopPropagation()"
-                style="flex: 1; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.3); color: #fff; font-size: 0.8rem; outline: none;"
+                style="flex: 1; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--inset-bg); color: var(--text-main); font-size: 0.8rem; outline: none;"
               />
               <button class="btn btn-primary" (click)="$event.stopPropagation(); handleSelectYoutube()" [disabled]="!youtubeUrl.trim() || extractionStatus === 'extracting'" style="padding: 8px 16px; font-size: 0.8rem;">
                 Import Link
@@ -193,7 +186,6 @@
         [bpm]="bpm"
         [bars]="bars"
         (onSeek)="handleSeek($event)"
-        (onSave)="handleSaveProject()"
       ></app-chord-sheet-editor>
     </div>
   </main>
@@ -224,7 +216,7 @@
           (mousemove)="handlePlayBarMouseMove($event)"
           (mouseenter)="showHoverTooltip = true"
           (mouseleave)="showHoverTooltip = false"
-          style="position: relative; width: 100%; height: 32px; display: flex; flex-direction: column; justify-content: center; background: rgba(0,0,0,0.15); border-radius: 6px; overflow: visible; padding: 0;"
+          style="position: relative; width: 100%; height: 32px; display: flex; flex-direction: column; justify-content: center; background: var(--inset-bg); border-radius: 6px; overflow: visible; padding: 0;"
         >
           <!-- Waveform Canvas in the background -->
           <app-waveform
@@ -249,7 +241,7 @@
           <div 
             *ngIf="showHoverTooltip && audioService.duration() > 0"
             [style.left.px]="hoverLeft"
-            style="position: absolute; bottom: 36px; transform: translateX(-50%); background: rgba(15, 23, 42, 0.95); border: 1px solid var(--primary); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; pointer-events: none; z-index: 100; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.5);"
+            style="position: absolute; bottom: 36px; transform: translateX(-50%); background: var(--primary); border: 1px solid var(--primary); color: var(--on-accent); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; pointer-events: none; z-index: 100; white-space: nowrap; box-shadow: var(--shadow-lg);"
           >
             {{ hoverTimeText }}
           </div>

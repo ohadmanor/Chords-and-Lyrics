@@ -1,13 +1,12 @@
 import os
 import re
-import json
 import sys
 import tkinter as tk
 from tkinter import filedialog
 import concurrent.futures
 from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import List, Optional
 import urllib.parse
@@ -38,6 +37,42 @@ app.add_middleware(
 
 extraction_tasks = {}
 
+
+def _make_progress_cb(task_id: str):
+    """Build a progress callback that records processing status for a task."""
+    def progress_cb(message, val):
+        extraction_tasks[task_id] = {
+            "status": "processing",
+            "progress": val,
+            "message": message,
+            "result": None,
+            "error": None,
+        }
+    return progress_cb
+
+
+def _complete_task(task_id: str, message: str, result: dict):
+    """Mark an extraction task as successfully completed."""
+    extraction_tasks[task_id] = {
+        "status": "completed",
+        "progress": 1.0,
+        "message": message,
+        "result": result,
+        "error": None,
+    }
+
+
+def _fail_task(task_id: str, error: Exception):
+    """Mark an extraction task as failed."""
+    extraction_tasks[task_id] = {
+        "status": "failed",
+        "progress": 1.0,
+        "message": f"Error: {str(error)}",
+        "result": None,
+        "error": str(error),
+    }
+
+
 class LyricsLine(BaseModel):
     text: str
     time: float
@@ -47,14 +82,6 @@ class GenerateSheetRequest(BaseModel):
     chords: List[dict]
     lyrics: List[LyricsLine]
     duration: float
-
-class SaveProjectRequest(BaseModel):
-    filePath: str
-    audioPath: str
-    chordsheetText: str
-    timestamps: List[float]
-    bpm: Optional[float] = None
-    bars: Optional[List[dict]] = None
 
 class YoutubeRequest(BaseModel):
     url: str
@@ -202,6 +229,11 @@ def download_youtube_audio(video_id: str, output_dir: str) -> str:
     return output_mp3
 
 # Core chord alignment algorithm
+# If the first chord change inside a line happens within this fraction of the
+# line's sung duration, the singer is treated as entering on that chord, so the
+# previously-sounding (leftover instrumental) chord is NOT prepended.
+SEED_HOLD_FRACTION = 0.4
+
 def generate_aligned_sheet_internal(chords: list, lyrics: list, duration: float):
     if not lyrics:
         return {"chordsheet": "", "timestamps": []}
@@ -249,35 +281,67 @@ def generate_aligned_sheet_internal(chords: list, lyrics: list, duration: float)
             singing_duration = min(singing_duration, max(0.0, next_start - line_start - 1.0))
             
         singing_end = line_start + singing_duration
-        
-        # Chords during active singing
+
+        # The line owns every chord change until the next line begins, *unless*
+        # there is a long instrumental gap (handled separately further down).
+        # Using the full span prevents a late chord change that lands a beat
+        # before the next line (e.g. the bar-10 chord while still singing the
+        # first line) from being dropped by the rough singing-duration estimate.
+        gap_to_next = next_start - singing_end
+        chord_window_end = singing_end if gap_to_next > 3.0 else next_start
+
+        # Chords whose change-point falls within the line's span.
         chords_in_singing = []
         for c in chords:
-            if line_start <= c["time"] < singing_end:
+            if line_start <= c["time"] < chord_window_end and c["chord"]:
                 chords_in_singing.append((c["time"], c["chord"]))
-                
-        # Carry over last active chord if singing starts chordless
-        if not chords_in_singing:
-            prev_chords = [c for c in chords if c["time"] <= line_start]
-            if prev_chords:
-                last_chord = prev_chords[-1]
-                if last_chord["chord"]:
-                    chords_in_singing.append((line_start, last_chord["chord"]))
-                    
+
+        # Seed the line with the chord sounding at line_start ONLY when it
+        # actually dominates the start of the line. If the first real chord
+        # change lands early in the line, the singer effectively enters on that
+        # chord and the previously-sounding chord is just a brief leftover from
+        # before the vocal entry (e.g. the instrumental tail), so we drop it to
+        # avoid a stale leading chord. If the first change comes late (or there
+        # is none), the held chord is real and must be shown.
+        first_change_t = chords_in_singing[0][0] if chords_in_singing else None
+        starts_at_line_head = first_change_t is not None and first_change_t <= line_start
+        if not starts_at_line_head:
+            seed_needed = True
+            if first_change_t is not None and singing_duration > 0:
+                early_frac = (first_change_t - line_start) / singing_duration
+                if early_frac <= SEED_HOLD_FRACTION:
+                    seed_needed = False
+            if seed_needed:
+                prev_chords = [c for c in chords if c["time"] <= line_start and c["chord"]]
+                if prev_chords:
+                    chords_in_singing.insert(0, (line_start, prev_chords[-1]["chord"]))
+
+        # Collapse consecutive duplicate chords so the same chord is not repeated.
+        deduped = []
+        for t_chord, chord_name in chords_in_singing:
+            if not deduped or deduped[-1][1] != chord_name:
+                deduped.append((t_chord, chord_name))
+        chords_in_singing = deduped
+
         # Write singing block
         line_len = len(line_text)
         if line_len > 0:
             chord_chars = [" "] * (line_len + 40)
+            cursor = 0  # left-most column the next chord label may occupy
             for t_chord, chord_name in chords_in_singing:
                 if not chord_name:
                     continue
                 ratio = (t_chord - line_start) / singing_duration if singing_duration > 0 else 0.0
                 ratio = max(0.0, min(1.0, ratio))
                 char_idx = int(round(ratio * line_len))
+                # Never overwrite a previously placed chord label; keep a gap.
+                if char_idx < cursor:
+                    char_idx = cursor
                 for k, char in enumerate(chord_name):
                     target_idx = char_idx + k
                     if target_idx < len(chord_chars):
                         chord_chars[target_idx] = char
+                cursor = char_idx + len(chord_name) + 1
             chord_line = "".join(chord_chars).rstrip()
             
             output_lines.append(chord_line)
@@ -340,45 +404,25 @@ def generate_aligned_sheet_internal(chords: list, lyrics: list, duration: float)
     }
 
 # File dialogue thread run executors
-def run_file_dialog():
+def _run_dialog(dialog_fn, **kwargs):
+    """Run a tkinter file dialog on a topmost, hidden root window."""
     root = tk.Tk()
     root.withdraw()
     root.focus_force()
     root.attributes("-topmost", True)
-    file_path = filedialog.askopenfilename(
+    file_path = dialog_fn(**kwargs)
+    root.destroy()
+    return file_path
+
+def run_file_dialog():
+    return _run_dialog(
+        filedialog.askopenfilename,
         title="Select Audio File",
         filetypes=[
             ("Audio Files", "*.mp3 *.wav *.ogg *.m4a *.flac"),
             ("All Files", "*.*")
         ]
     )
-    root.destroy()
-    return file_path
-
-def run_save_dialog():
-    root = tk.Tk()
-    root.withdraw()
-    root.focus_force()
-    root.attributes("-topmost", True)
-    file_path = filedialog.asksaveasfilename(
-        title="Save Chord Project",
-        defaultextension=".chordproj",
-        filetypes=[("Chord Project Files", "*.chordproj"), ("All Files", "*.*")]
-    )
-    root.destroy()
-    return file_path
-
-def run_open_project_dialog():
-    root = tk.Tk()
-    root.withdraw()
-    root.focus_force()
-    root.attributes("-topmost", True)
-    file_path = filedialog.askopenfilename(
-        title="Open Chord Project",
-        filetypes=[("Chord Project Files", "*.chordproj"), ("All Files", "*.*")]
-    )
-    root.destroy()
-    return file_path
 
 @app.get("/api/select-file")
 async def select_file():
@@ -397,15 +441,8 @@ def stream_audio(path: str):
     return FileResponse(decoded_path)
 
 def run_extraction_background(task_id: str, audio_path: str):
-    def progress_cb(message, val):
-        extraction_tasks[task_id] = {
-            "status": "processing",
-            "progress": val,
-            "message": message,
-            "result": None,
-            "error": None
-        }
-        
+    progress_cb = _make_progress_cb(task_id)
+
     try:
         # 1. Chord Extraction
         chords_data = extract_chords_from_audio(audio_path, progress_cb)
@@ -434,33 +471,21 @@ def run_extraction_background(task_id: str, audio_path: str):
             progress_cb("Searching web for unsynced lyrics...", 0.94)
             unsynced_lyrics = search_unsynced_lyrics(query) or ""
             
-        extraction_tasks[task_id] = {
-            "status": "completed",
-            "progress": 1.0,
-            "message": "Extraction complete!",
-            "result": {
-                "chords": chords,
-                "bpm": bpm,
-                "bars": bars,
-                "lyrics": lyrics,
-                "chordsheet": chordsheet,
-                "timestamps": timestamps,
-                "auto_synced": auto_synced,
-                "unsyncedLyrics": unsynced_lyrics,
-                "estimatedLyricsStart": float(lyrics[0]["time"]) if lyrics else chords_data.get("estimated_lyrics_start", 0.0),
-                "audioPath": audio_path,
-                "filename": os.path.basename(audio_path)
-            },
-            "error": None
-        }
+        _complete_task(task_id, "Extraction complete!", {
+            "chords": chords,
+            "bpm": bpm,
+            "bars": bars,
+            "lyrics": lyrics,
+            "chordsheet": chordsheet,
+            "timestamps": timestamps,
+            "auto_synced": auto_synced,
+            "unsyncedLyrics": unsynced_lyrics,
+            "estimatedLyricsStart": float(lyrics[0]["time"]) if lyrics else chords_data.get("estimated_lyrics_start", 0.0),
+            "audioPath": audio_path,
+            "filename": os.path.basename(audio_path)
+        })
     except Exception as e:
-        extraction_tasks[task_id] = {
-            "status": "failed",
-            "progress": 1.0,
-            "message": f"Error: {str(e)}",
-            "result": None,
-            "error": str(e)
-        }
+        _fail_task(task_id, e)
 
 @app.post("/api/extract-chords")
 async def start_extraction(request: Request, background_tasks: BackgroundTasks):
@@ -482,15 +507,8 @@ async def start_extraction(request: Request, background_tasks: BackgroundTasks):
     return {"task_id": task_id}
 
 def run_youtube_extraction_background(task_id: str, video_id: str):
-    def progress_cb(message, val):
-        extraction_tasks[task_id] = {
-            "status": "processing",
-            "progress": val,
-            "message": message,
-            "result": None,
-            "error": None
-        }
-        
+    progress_cb = _make_progress_cb(task_id)
+
     try:
         downloads_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "downloads")
         
@@ -549,34 +567,22 @@ def run_youtube_extraction_background(task_id: str, video_id: str):
             progress_cb("Searching web for unsynced lyrics...", 0.94)
             unsynced_lyrics = search_unsynced_lyrics(query) or ""
             
-        extraction_tasks[task_id] = {
-            "status": "completed",
-            "progress": 1.0,
-            "message": "YouTube extraction completed successfully!",
-            "result": {
-                "chords": chords,
-                "bpm": bpm,
-                "bars": bars,
-                "lyrics": lyrics,
-                "chordsheet": chordsheet,
-                "timestamps": timestamps,
-                "auto_synced": auto_synced,
-                "unsyncedLyrics": unsynced_lyrics,
-                "estimatedLyricsStart": float(lyrics[0]["time"]) if lyrics else chords_data.get("estimated_lyrics_start", 0.0),
-                "audioPath": mp3_path,
-                "filename": friendly_title + ".mp3"
-            },
-            "error": None
-        }
+        _complete_task(task_id, "YouTube extraction completed successfully!", {
+            "chords": chords,
+            "bpm": bpm,
+            "bars": bars,
+            "lyrics": lyrics,
+            "chordsheet": chordsheet,
+            "timestamps": timestamps,
+            "auto_synced": auto_synced,
+            "unsyncedLyrics": unsynced_lyrics,
+            "estimatedLyricsStart": float(lyrics[0]["time"]) if lyrics else chords_data.get("estimated_lyrics_start", 0.0),
+            "audioPath": mp3_path,
+            "filename": friendly_title + ".mp3"
+        })
         
     except Exception as e:
-        extraction_tasks[task_id] = {
-            "status": "failed",
-            "progress": 1.0,
-            "message": f"Error: {str(e)}",
-            "result": None,
-            "error": str(e)
-        }
+        _fail_task(task_id, e)
 
 @app.post("/api/extract-youtube")
 async def extract_youtube(request: YoutubeRequest, background_tasks: BackgroundTasks):
@@ -609,50 +615,6 @@ def generate_chordsheet(data: GenerateSheetRequest):
     lyrics_list = [{"text": l.text, "time": l.time, "duration": l.duration} for l in data.lyrics]
     return generate_aligned_sheet_internal(data.chords, lyrics_list, data.duration)
 
-@app.post("/api/save-project")
-async def save_project(data: SaveProjectRequest):
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        future = executor.submit(run_save_dialog)
-        save_path = future.result()
-        
-    if not save_path:
-        return {"status": "cancelled", "path": ""}
-        
-    project_data = {
-        "audioPath": data.audioPath,
-        "chordsheetText": data.chordsheetText,
-        "timestamps": data.timestamps,
-        "bpm": data.bpm,
-        "bars": data.bars
-    }
-    
-    try:
-        with open(save_path, "w", encoding="utf-8") as f:
-            json.dump(project_data, f, indent=4)
-        return {"status": "saved", "path": save_path}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to save project: {str(e)}")
-
-@app.get("/api/load-project")
-async def load_project():
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        future = executor.submit(run_open_project_dialog)
-        open_path = future.result()
-        
-    if not open_path:
-        return {"status": "cancelled"}
-        
-    try:
-        with open(open_path, "r", encoding="utf-8") as f:
-            project_data = json.load(f)
-        return {
-            "status": "loaded",
-            "path": open_path,
-            "data": project_data
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to load project: {str(e)}")
-
 def get_static_dir():
     if getattr(sys, 'frozen', False):
         base_path = sys._MEIPASS
@@ -668,8 +630,13 @@ def open_browser():
 
 @app.on_event("startup")
 def on_startup():
-    import threading
-    threading.Thread(target=open_browser, daemon=True).start()
+    # Only auto-open a browser when running as the standalone frozen exe, where
+    # the backend itself serves the full app on :8000. In dev/prod the run.py
+    # scripts open the correct frontend URL (:4200 / :4300), so opening here too
+    # would spawn a duplicate tab.
+    if getattr(sys, 'frozen', False):
+        import threading
+        threading.Thread(target=open_browser, daemon=True).start()
 
 @app.get("/{catchall:path}")
 def serve_spa(request: Request, catchall: str):

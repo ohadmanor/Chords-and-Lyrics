@@ -9,7 +9,6 @@ import {
   LucidePlay, 
   LucidePause, 
   LucideVolume2, 
-  LucideFolderOpen, 
   LucideAlertCircle, 
   LucideRefreshCw, 
   LucideClipboardCheck 
@@ -38,7 +37,6 @@ import { AudioService } from './services/audio.service';
     LucidePlay,
     LucidePause,
     LucideVolume2,
-    LucideFolderOpen,
     LucideAlertCircle,
     LucideRefreshCw,
     LucideClipboardCheck
@@ -387,50 +385,6 @@ export class AppComponent implements OnInit, OnDestroy {
         this.handleSeek(seekTarget);
       }
       this.success = `Lyrics and chords verified. Skip intro active: player seeked to ${Math.max(0, event.selectedBarTime - 4.0).toFixed(0)}s. Tap to sync!`;
-    }
-  }
-
-  public async handleSaveProject() {
-    this.error = '';
-    this.success = '';
-    try {
-      const data = await this.apiService.saveProject(
-        this.audioPath,
-        this.chordsheetText,
-        this.timestamps,
-        this.bpm,
-        this.bars
-      );
-      if (data.status === 'saved') {
-        this.success = `Project saved to: ${data.path}`;
-      }
-    } catch (err) {
-      this.error = 'Failed to save project.';
-    }
-  }
-
-  public async handleLoadProject() {
-    this.error = '';
-    this.success = '';
-    try {
-      const data = await this.apiService.loadProject();
-      if (data.status === 'loaded') {
-        const proj = data.data;
-        this.audioPath = proj.audioPath;
-        this.filename = proj.audioPath.split(/[\\/]/).pop() || 'Loaded Audio';
-        this.chordsheetText = proj.chordsheetText;
-        this.timestamps = proj.timestamps;
-        this.bpm = proj.bpm || null;
-        this.bars = proj.bars || [];
-        this.chords = []; // Loaded projects have sheet precompiled
-        this.extractionStatus = 'completed';
-
-        this.audioService.loadTrack(proj.audioPath);
-        this.activeTab = 'editor';
-        this.success = `Loaded project: ${data.path}`;
-      }
-    } catch (err) {
-      this.error = 'Failed to load project.';
     }
   }
 }

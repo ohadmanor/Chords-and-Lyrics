@@ -13,14 +13,14 @@
       </div>
 
       <!-- Lyrics Start Bar Selector -->
-      <div class="info-tip" style="margin: 0; padding: 8px 12px; background: rgba(255, 255, 255, 0.05); border-style: solid; display: flex; align-items: center; gap: 8px;">
+      <div class="info-tip" style="margin: 0; padding: 8px 12px; background: var(--surface-2); border-style: solid; display: flex; align-items: center; gap: 8px;">
         <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Lyrics Start:</span>
         <select
           [value]="startBarIdx"
           (change)="startBarIdx = +$any($event.target).value"
-          style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: #fff; padding: 2px 8px; border-radius: 4px; outline: none; cursor: pointer; font-size: 0.8rem; font-weight: 600;"
+          style="background: var(--inset-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 2px 8px; border-radius: 4px; outline: none; cursor: pointer; font-size: 0.8rem; font-weight: 600;"
         >
-          <option *ngFor="let bar of localBars; let idx = index" [value]="idx" style="background: #0f172a;">
+          <option *ngFor="let bar of localBars; let idx = index" [value]="idx" style="background: var(--bg-secondary); color: var(--text-main);">
             Bar {{ bar.bar_index }} ({{ bar.time.toFixed(1) }}s)
           </option>
         </select>
@@ -44,7 +44,7 @@
         </span>
       </div>
       
-      <div style="flex: 1; overflow-y: auto; background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: 10px; padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; align-content: start;">
+      <div style="flex: 1; overflow-y: auto; background: var(--inset-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; align-content: start;">
         <div *ngIf="localBars.length === 0" style="grid-column: 1 / -1; margin: auto; text-align: center; opacity: 0.5; padding: 40px 0;">
           <svg lucideMusic style="width: 32px; height: 32px; margin-bottom: 10px;"></svg>
           <p>No bars detected. Chords list is empty.</p>
@@ -58,8 +58,8 @@
             (click)="handleBarClick(bar.time)"
             [ngStyle]="{
               'background': barIdx === activeBarIndex 
-                ? (barIdx === startBarIdx ? 'rgba(168, 85, 247, 0.25)' : 'var(--primary-glow)') 
-                : (barIdx === startBarIdx ? 'var(--secondary-glow)' : 'rgba(255, 255, 255, 0.02)'),
+                ? (barIdx === startBarIdx ? 'var(--secondary-glow)' : 'var(--primary-glow)') 
+                : (barIdx === startBarIdx ? 'var(--secondary-glow)' : 'var(--surface-1)'),
               'border-color': barIdx === activeBarIndex 
                 ? (barIdx === startBarIdx ? 'var(--secondary)' : 'var(--primary)') 
                 : (barIdx === startBarIdx ? 'var(--secondary)' : 'var(--border-color)'),
@@ -74,9 +74,9 @@
               <div 
                 (click)="selectStartBar(barIdx, $event)"
                 [ngStyle]="{
-                  'background': barIdx === startBarIdx ? 'var(--secondary)' : 'rgba(255, 255, 255, 0.05)',
-                  'border-color': barIdx === startBarIdx ? 'var(--secondary)' : 'rgba(255, 255, 255, 0.08)',
-                  'color': barIdx === startBarIdx ? '#fff' : 'var(--text-muted)'
+                  'background': barIdx === startBarIdx ? 'var(--secondary)' : 'var(--surface-2)',
+                  'border-color': barIdx === startBarIdx ? 'var(--secondary)' : 'var(--border-color)',
+                  'color': barIdx === startBarIdx ? 'var(--on-accent)' : 'var(--text-muted)'
                 }"
                 style="font-size: 0.75rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; border: 1px solid; transition: all 0.2s; user-select: none;"
                 title="Set as lyrics start bar"
@@ -110,12 +110,12 @@
                 [placeholder]="getDisplayValue(barIdx, beatIdx) ? '' : (getInheritedChord(barIdx, beatIdx) ? '(' + getInheritedChord(barIdx, beatIdx) + ')' : '-')"
                 (input)="handleChordChange(barIdx, beatIdx, $event)"
                 [ngStyle]="{
-                  'color': getDisplayValue(barIdx, beatIdx) ? '#38bdf8' : 'rgba(148, 163, 184, 0.4)',
+                  'color': getDisplayValue(barIdx, beatIdx) ? 'var(--chord-color)' : 'var(--text-faint)',
                   'font-weight': getDisplayValue(barIdx, beatIdx) ? '700' : '400'
                 }"
-                style="background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color); border-radius: 4px; padding: 4px 2px; text-align: center; fontSize: 0.75rem; outline: none; width: 100%; transition: all 0.2s;"
-                (focus)="$any($event.target).style.borderColor = 'var(--primary)'; $any($event.target).style.background = 'rgba(0,0,0,0.5)'"
-                (blur)="$any($event.target).style.borderColor = 'var(--border-color)'; $any($event.target).style.background = 'rgba(0,0,0,0.3)'"
+                style="background: var(--inset-bg); border: 1px solid var(--border-color); border-radius: 4px; padding: 4px 2px; text-align: center; fontSize: 0.75rem; outline: none; width: 100%; transition: all 0.2s;"
+                (focus)="$any($event.target).style.borderColor = 'var(--primary)'; $any($event.target).style.background = 'var(--inset-bg-strong)'"
+                (blur)="$any($event.target).style.borderColor = 'var(--border-color)'; $any($event.target).style.background = 'var(--inset-bg)'"
               />
             </div>
           </div>

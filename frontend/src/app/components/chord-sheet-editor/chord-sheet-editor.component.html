@@ -8,9 +8,6 @@
       <button class="btn btn-secondary" (click)="handleExportText()">
         <svg lucideFileDown style="width: 16px; height: 16px;"></svg> Export TXT
       </button>
-      <button class="btn btn-primary" (click)="onSave.emit()">
-        <svg lucideSave style="width: 16px; height: 16px;"></svg> Save Project
-      </button>
     </div>
   </div>
 
@@ -43,15 +40,15 @@
         <div style="display: flex; gap: 5px; text-transform: none;">
           <button 
             (click)="viewMode = 'sheet'"
-            [ngStyle]="{ 'background': viewMode === 'sheet' ? 'var(--primary)' : 'rgba(255,255,255,0.05)' }"
-            style="border: none; border-radius: 4px; color: white; font-size: 0.7rem; padding: 4px 10px; cursor: pointer; font-weight: 600; transition: background 0.2s;"
+            [ngStyle]="{ 'background': viewMode === 'sheet' ? 'var(--primary)' : 'var(--surface-2)', 'color': viewMode === 'sheet' ? 'var(--on-accent)' : 'var(--text-main)' }"
+            style="border: none; border-radius: 4px; font-size: 0.7rem; padding: 4px 10px; cursor: pointer; font-weight: 600; transition: background 0.2s;"
           >
             Lyrics Sheet
           </button>
           <button 
             (click)="viewMode = 'bars'"
-            [ngStyle]="{ 'background': viewMode === 'bars' ? 'var(--primary)' : 'rgba(255,255,255,0.05)' }"
-            style="border: none; border-radius: 4px; color: white; font-size: 0.7rem; padding: 4px 10px; cursor: pointer; font-weight: 600; transition: background 0.2s;"
+            [ngStyle]="{ 'background': viewMode === 'bars' ? 'var(--primary)' : 'var(--surface-2)', 'color': viewMode === 'bars' ? 'var(--on-accent)' : 'var(--text-main)' }"
+            style="border: none; border-radius: 4px; font-size: 0.7rem; padding: 4px 10px; cursor: pointer; font-weight: 600; transition: background 0.2s;"
           >
             Bar Grid
           </button>
@@ -73,7 +70,7 @@
                 #barCard
                 (click)="handleSeek(bar.time)"
                 [ngStyle]="{
-                  'background': idx === activeBarIndex ? 'var(--primary-glow)' : 'rgba(255, 255, 255, 0.02)',
+                  'background': idx === activeBarIndex ? 'var(--primary-glow)' : 'var(--surface-1)',
                   'border-color': idx === activeBarIndex ? 'var(--primary)' : 'var(--border-color)',
                   'box-shadow': idx === activeBarIndex ? 'var(--shadow-glow)' : 'none'
                 }"
@@ -88,7 +85,7 @@
                 <div style="flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
                   <div 
                     *ngFor="let chord of bar.chords"
-                    style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); padding: 8px; border-radius: 4px; text-align: center; font-weight: 700; color: #38bdf8; font-size: 0.95rem; min-height: 34px; display: flex; align-items: center; justify-content: center;"
+                    style="background: var(--inset-bg); border: 1px solid var(--border-color); padding: 8px; border-radius: 4px; text-align: center; font-weight: 700; color: var(--chord-color); font-size: 0.95rem; min-height: 34px; display: flex; align-items: center; justify-content: center;"
                   >
                     {{ chord || '-' }}
                   </div>

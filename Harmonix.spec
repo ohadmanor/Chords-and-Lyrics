@@ -1,16 +1,23 @@
 # -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import collect_data_files
+from PyInstaller.utils.hooks import collect_submodules
+
+datas = [('C:\\Develop\\Github\\Chords-and-Lyrics\\frontend\\dist\\frontend\\browser', 'static')]
+hiddenimports = ['chord_extractor', 'uvicorn.logging', 'uvicorn.loops', 'uvicorn.loops.auto', 'uvicorn.protocols', 'uvicorn.protocols.http', 'uvicorn.protocols.http.auto', 'uvicorn.protocols.websockets', 'uvicorn.protocols.websockets.auto', 'uvicorn.lifespan', 'uvicorn.lifespan.on', 'uvicorn.lifespan.off']
+datas += collect_data_files('madmom')
+hiddenimports += collect_submodules('madmom')
 
 
 a = Analysis(
     ['C:\\Develop\\Github\\Chords-and-Lyrics\\backend\\app.py'],
-    pathex=[],
+    pathex=['C:\\Develop\\Github\\Chords-and-Lyrics\\backend'],
     binaries=[],
-    datas=[('C:\\Develop\\Github\\Chords-and-Lyrics\\frontend\\dist\\frontend\\browser', 'static')],
-    hiddenimports=['soundfile', 'librosa', 'uvicorn.logging', 'uvicorn.loops', 'uvicorn.loops.auto', 'uvicorn.protocols', 'uvicorn.protocols.http', 'uvicorn.protocols.http.auto', 'uvicorn.protocols.websockets', 'uvicorn.protocols.websockets.auto', 'uvicorn.lifespan', 'uvicorn.lifespan.on', 'uvicorn.lifespan.off'],
+    datas=datas,
+    hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=['numba.tests', 'scipy.io.tests', 'sklearn.tests', 'matplotlib', 'torch'],
     noarchive=False,
     optimize=0,
 )

@@ -61,25 +61,4 @@ export class ApiService {
     });
     return res.json();
   }
-
-  async saveProject(audioPath: string, chordsheetText: string, timestamps: number[], bpm: number | null, bars: BarData[]): Promise<any> {
-    const res = await fetch(`${this.baseUrl}/api/save-project`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        filePath: '',
-        audioPath,
-        chordsheetText,
-        timestamps,
-        bpm,
-        bars
-      })
-    });
-    return res.json();
-  }
-
-  async loadProject(): Promise<any> {
-    const res = await fetch(`${this.baseUrl}/api/load-project`);
-    return res.json();
-  }
 }

@@ -39,7 +39,7 @@
   <!-- Active Sync Mode -->
   <div *ngIf="syncMode" class="sync-grid">
     <!-- Left panel: Tap dashboard -->
-    <div class="glass-panel" style="background: rgba(0,0,0,0.2); padding: 20px;">
+    <div class="glass-panel" style="background: var(--inset-bg); padding: 20px;">
       <div style="display: flex; flex-direction: column; height: 100%; justify-content: space-between;">
         
         <!-- Highlight Area -->
@@ -49,7 +49,7 @@
               Active Line ({{ currentIndex + 1 }} of {{ lines.length }})
             </div>
             <div 
-              style="font-size: 1.8rem; font-weight: 700; line-height: 1.3; color: #fff; text-shadow: 0 0 20px rgba(99, 102, 241, 0.4); margin-bottom: 24px; text-align: center;"
+              style="font-size: 1.8rem; font-weight: 700; line-height: 1.3; color: var(--text-main); text-shadow: 0 0 20px var(--primary-glow); margin-bottom: 24px; text-align: center;"
               [ngStyle]="{ 'direction': hasHebrew(lines[currentIndex].text) ? 'rtl' : 'ltr' }"
             >
               {{ lines[currentIndex].text }}
@@ -69,7 +69,7 @@
             <div class="logo-icon" style="margin: 0 auto 15px auto; width: 50px; height: 50px;">
               <svg lucideCheck style="width: 28px; height: 28px;"></svg>
             </div>
-            <div style="font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 10px;">
+            <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin-bottom: 10px;">
               All Lines Synced!
             </div>
             <p style="color: var(--text-muted); font-size: 0.9rem;">
@@ -84,8 +84,8 @@
           class="btn btn-purple" 
           (click)="markLineTimestamp()"
           [disabled]="!isPlaying"
-          style="padding: 24px; font-size: 1.1rem; font-weight: 700; border: 1px solid rgba(168, 85, 247, 0.4);"
-          [ngStyle]="{ 'box-shadow': isPlaying ? '0 0 20px rgba(168, 85, 247, 0.2)' : 'none' }"
+          style="padding: 24px; font-size: 1.1rem; font-weight: 700; border: 1px solid var(--secondary);"
+          [ngStyle]="{ 'box-shadow': isPlaying ? 'var(--shadow-glow-purple)' : 'none' }"
         >
           {{ isPlaying ? "TAP HERE OR PRESS SPACEBAR / ENTER" : "PLAY SONG TO START SYNCING" }}
         </button>

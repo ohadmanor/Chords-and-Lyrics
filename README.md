@@ -42,17 +42,19 @@ Chords_and Lyrics/
 │   ├── app.py                # FastAPI server (Uvicorn, project routes)
 │   ├── chord_extractor.py    # librosa DSP engine (CQT, Viterbi HMM, VAD)
 │   └── downloads/            # Local cache for YouTube streams
-├── frontend/
+├── frontend/                 # Angular (standalone components, signals)
 │   ├── src/
-│   │   ├── components/
-│   │   │   ├── ReviewEditor.jsx      # Compact bars review & edit panel
-│   │   │   ├── LyricsSyncer.jsx      # Manual tapper syncer (offset auto-adjust)
-│   │   │   ├── ChordSheetEditor.jsx  # Sheet/Bar grid player editor
-│   │   │   └── Waveform.jsx          # Waveform progress tracker
-│   │   ├── App.jsx                   # Central React controller
-│   │   └── App.css                   # Custom glassmorphic styling
-│   └── index.html
-├── run.py                    # Server startup runner script
+│   │   ├── app/
+│   │   │   ├── components/
+│   │   │   │   ├── review-editor/        # Compact bars review & edit panel
+│   │   │   │   ├── lyrics-syncer/        # Manual tapper syncer (offset auto-adjust)
+│   │   │   │   ├── chord-sheet-editor/   # Sheet/Bar grid player editor
+│   │   │   │   └── waveform/             # Waveform progress tracker
+│   │   │   ├── services/                 # api.service.ts, audio.service.ts
+│   │   │   └── app.component.ts          # Root component / central controller
+│   │   └── index.html
+│   └── angular.json
+├── run.py                    # Server startup runner script (dev/prod dispatcher)
 └── README.md                 # Project documentation
 ```
 
@@ -66,7 +68,7 @@ Chords_and Lyrics/
 - **FFmpeg** (installed and added to system `%PATH%` for audio conversion)
 
 ### 1. Run via Startup Wrapper
-Simply run the root helper script to spin up the FastAPI backend (port `8000`) and the Vite React frontend (port `5173`) concurrently:
+Simply run the root helper script to spin up the FastAPI backend (port `8000`) and the Angular dev frontend (port `4200`) concurrently:
 ```bash
 python run.py
 ```
@@ -80,11 +82,11 @@ pip install -r requirements.txt
 python app.py
 ```
 
-**Frontend (Vite + React):**
+**Frontend (Angular):**
 ```bash
 cd frontend
 npm install
-npm run dev
+npm start
 ```
 
 ---
