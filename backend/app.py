@@ -32,7 +32,7 @@ if hasattr(sys.stderr, 'reconfigure'):
     sys.stderr.reconfigure(encoding='utf-8')
 
 
-app = FastAPI(title="Chord & Lyrics Extractor API", version="1.0.0")
+app = FastAPI(title="Chord & Lyrics Extractor API", version="1.0.1")
 
 # Enable CORS for frontend communication
 app.add_middleware(
