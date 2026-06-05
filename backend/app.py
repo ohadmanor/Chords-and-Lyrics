@@ -17,6 +17,14 @@ from youtube_transcript_api import YouTubeTranscriptApi
 
 from chord_extractor import extract_chords_from_audio
 
+# When packaged as a windowed (--noconsole) exe there is no console, so
+# sys.stdout/sys.stderr are None. Redirect them to a null sink so the app's
+# print() calls and uvicorn's logging handlers don't crash.
+if sys.stdout is None:
+    sys.stdout = open(os.devnull, "w", encoding="utf-8")
+if sys.stderr is None:
+    sys.stderr = open(os.devnull, "w", encoding="utf-8")
+
 # Configure UTF-8 encoding for standard output and error to prevent crashes in Windows
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
@@ -199,6 +207,25 @@ def fetch_youtube_transcript(video_id: str) -> Optional[List[dict]]:
         print(f"YouTube captions not found: {e}")
         return None
 
+def get_ffmpeg_location() -> Optional[str]:
+    """Return the directory holding ffmpeg/ffprobe, or None to rely on PATH.
+
+    yt-dlp's audio post-processing needs FFmpeg. To keep the standalone exe
+    self-contained, the binaries are bundled and shipped with the app:
+      * Frozen exe: PyInstaller unpacks them under <_MEIPASS>/ffmpeg.
+      * Dev runs:   a project-local ./ffmpeg folder (created by build_exe.py).
+    If neither exists we return None so yt-dlp falls back to a system FFmpeg.
+    """
+    candidates = []
+    if getattr(sys, 'frozen', False):
+        candidates.append(os.path.join(sys._MEIPASS, "ffmpeg"))
+    candidates.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "ffmpeg")))
+    for path in candidates:
+        if os.path.isfile(os.path.join(path, "ffmpeg.exe")) or os.path.isfile(os.path.join(path, "ffmpeg")):
+            return path
+    return None
+
+
 # Download audio using yt-dlp and convert to MP3 via FFmpeg
 def download_youtube_audio(video_id: str, output_dir: str) -> str:
     os.makedirs(output_dir, exist_ok=True)
@@ -220,6 +247,10 @@ def download_youtube_audio(video_id: str, output_dir: str) -> str:
         'quiet': True,
         'no_warnings': True,
     }
+
+    ffmpeg_dir = get_ffmpeg_location()
+    if ffmpeg_dir:
+        ydl_opts['ffmpeg_location'] = ffmpeg_dir
     
     url = f"https://www.youtube.com/watch?v={video_id}"
     print(f"Downloading YouTube audio for: {video_id}...")
