@@ -1,4 +1,4 @@
-# Harmonix (v1.0.0) - Chord & Lyrics Alignment Studio
+# Harmonix (v1.0.1) - Chord & Lyrics Alignment Studio
 
 Harmonix is a modern web application designed to automatically extract chords from audio tracks (local uploads or YouTube streams), retrieve/sync lyrics, group musical intervals into clean 4/4 bars, and provide an interactive workspace to verify, edit, and play along.
 
@@ -54,7 +54,7 @@ Chords_and Lyrics/
 │   │   │   └── app.component.ts          # Root component / central controller
 │   │   └── index.html
 │   └── angular.json
-├── run.py                    # Server startup runner script (dev/prod dispatcher)
+├── run.py                    # Unified runner/packager (dev / prod / build modes)
 └── README.md                 # Project documentation
 ```
 
@@ -68,10 +68,24 @@ Chords_and Lyrics/
 - **FFmpeg** (installed and added to system `%PATH%` for audio conversion)
 
 ### 1. Run via Startup Wrapper
-Simply run the root helper script to spin up the FastAPI backend (port `8000`) and the Angular dev frontend (port `4200`) concurrently:
+The root [`run.py`](run.py) helper handles development, production, and packaging through a single command with subcommands:
+
 ```bash
-python run.py
+python run.py                     # dev mode (default): FastAPI --reload + ng serve
+python run.py dev                 # same as above
+python run.py prod                # build Angular + serve static bundle + uvicorn
+python run.py prod --skip-build   # prod mode, reuse the existing frontend build
+python run.py build               # package a standalone dist/Harmonix.exe (PyInstaller)
+python run.py build --skip-frontend  # package, reuse the existing frontend build
 ```
+
+| Mode    | Backend                         | Frontend                                  |
+| ------- | ------------------------------- | ----------------------------------------- |
+| `dev`   | uvicorn `--reload` on `:8000`   | `ng serve` (live HMR) on `:4200`          |
+| `prod`  | uvicorn on `:8000`              | production build served statically on `:4300` |
+| `build` | bundled into a single `.exe`    | production build embedded in the binary   |
+
+Dependencies (Python `pip` packages and frontend `npm` modules) are installed automatically on first run.
 
 ### 2. Manual Start
 
