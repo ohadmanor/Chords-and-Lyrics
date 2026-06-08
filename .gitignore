@@ -3,6 +3,7 @@ node_modules/
 /jspm_packages/
 .npm
 .eslintcache
+package-lock.json
 
 # Python cache & virtualenvs
 __pycache__/
@@ -17,6 +18,8 @@ ENV/
 
 # Audio cache & YouTube downloads
 backend/downloads/
+ffmpeg/
+build_release.log
 
 # Production build output
 frontend/dist/
