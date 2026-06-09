@@ -17,20 +17,22 @@ _DCP = None
 _MADMOM_FPS = 10  # DeepChromaProcessor default frame rate
 
 PITCH_NAMES = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
-# State layout (length 49):
+# State layout (length 61):
 #   0..11   major triads          (C, C#, ... B)
 #   12..23  minor triads          (Cm, C#m, ... Bm)
 #   24..35  major 7 chords        (Cmaj7, ...)
 #   36..47  minor 7 chords        (Cm7, ...)
-#   48      no-chord / silence (N)
+#   48..59  dominant 7 chords     (C7, ...)
+#   60      no-chord / silence (N)
 CHORD_NAMES = (
     [p for p in PITCH_NAMES]
     + [p + "m" for p in PITCH_NAMES]
     + [p + "maj7" for p in PITCH_NAMES]
     + [p + "m7" for p in PITCH_NAMES]
+    + [p + "7" for p in PITCH_NAMES]
 )
-NUM_STATES = 49
-N_CHORD = 48  # index of the no-chord state
+NUM_STATES = 61
+N_CHORD = 60  # index of the no-chord state
 
 
 # ----------------------------------------------------------------------------
@@ -38,7 +40,7 @@ N_CHORD = 48  # index of the no-chord state
 # ----------------------------------------------------------------------------
 def generate_templates():
     """
-    12 major + 12 minor + 12 maj7 + 12 m7 chord templates over 12 pitch classes.
+    12 major + 12 minor + 12 maj7 + 12 m7 + 12 dominant 7 chord templates over 12 pitch classes.
     Root is weighted higher than other tones to stabilise the root choice
     when overtones bleed into neighbouring pitch classes.
     """
@@ -63,6 +65,11 @@ def generate_templates():
         templates[36 + r, (r + 3) % 12] = third_w
         templates[36 + r, (r + 7) % 12] = fifth_w
         templates[36 + r, (r + 10) % 12] = seventh_w
+        # Dominant 7 (root, major 3, 5, minor 7)
+        templates[48 + r, r] = root_w
+        templates[48 + r, (r + 4) % 12] = third_w
+        templates[48 + r, (r + 7) % 12] = fifth_w
+        templates[48 + r, (r + 10) % 12] = seventh_w
     templates /= np.linalg.norm(templates, axis=1, keepdims=True)
     return templates
 
@@ -216,15 +223,26 @@ def _key_aware_prior(tonic, is_minor, in_key_boost=1.15, off_key_seventh_penalty
         major_tonic = tonic
     diatonic_major_roots = {(major_tonic + s) % 12 for s in (0, 5, 7)}
     diatonic_minor_roots = {(major_tonic + s) % 12 for s in (2, 4, 9)}
+    diatonic_maj7_roots = {(major_tonic + s) % 12 for s in (0, 5)}
+    diatonic_m7_roots = {(major_tonic + s) % 12 for s in (2, 4, 9)}
+    diatonic_7_roots = {(tonic + 7) % 12} if is_minor else {(major_tonic + 7) % 12}
+
     prior = np.ones(NUM_STATES)
     for s in range(N_CHORD):
         root, fam = s % 12, s // 12
-        is_minor_chord = fam in (1, 3)
-        is_seventh = fam in (2, 3)
-        in_key = (
-            (not is_minor_chord and root in diatonic_major_roots)
-            or (is_minor_chord and root in diatonic_minor_roots)
-        )
+        is_seventh = fam in (2, 3, 4)
+        
+        if fam == 0:
+            in_key = root in diatonic_major_roots
+        elif fam == 1:
+            in_key = root in diatonic_minor_roots
+        elif fam == 2:
+            in_key = root in diatonic_maj7_roots
+        elif fam == 3:
+            in_key = root in diatonic_m7_roots
+        else:
+            in_key = root in diatonic_7_roots
+
         if in_key:
             prior[s] = in_key_boost
         elif is_seventh:
@@ -242,7 +260,7 @@ def _key_aware_weights(tonic, is_minor, diatonic_w=1.0, borrowed_w=0.35,
     Three tiers:
       * diatonic   – chord is exactly a chord built on a scale degree with the
                      expected quality (e.g. in C: C, Dm, Em, F, G, Am, Cmaj7,
-                     Fmaj7, Dm7, Em7, Am7)            -> diatonic_w
+                     Fmaj7, Dm7, Em7, Am7, G7)        -> diatonic_w
       * borrowed   – root sits in the key's scale but the quality is off
                      (e.g. Gmaj7 / Cm in C major)     -> borrowed_w
       * chromatic  – root is not in the scale at all  -> chromatic_w
@@ -260,6 +278,7 @@ def _key_aware_weights(tonic, is_minor, diatonic_w=1.0, borrowed_w=0.35,
     diatonic_minor_roots = {(major_tonic + s) % 12 for s in (2, 4, 9)}
     diatonic_maj7_roots = {(major_tonic + s) % 12 for s in (0, 5)}
     diatonic_m7_roots = {(major_tonic + s) % 12 for s in (2, 4, 9)}
+    diatonic_7_roots = {(tonic + 7) % 12} if is_minor else {(major_tonic + 7) % 12}
 
     weights = np.ones(N_CHORD)
     for s in range(N_CHORD):
@@ -270,8 +289,10 @@ def _key_aware_weights(tonic, is_minor, diatonic_w=1.0, borrowed_w=0.35,
             diatonic = root in diatonic_minor_roots
         elif fam == 2:      # maj7
             diatonic = root in diatonic_maj7_roots
-        else:               # m7
+        elif fam == 3:      # m7
             diatonic = root in diatonic_m7_roots
+        else:               # dominant 7
+            diatonic = root in diatonic_7_roots
         if diatonic:
             weights[s] = diatonic_w
         elif root in scale_pcs:
@@ -381,10 +402,10 @@ def extract_chords_from_audio(audio_path, progress_callback=None):
             progress_callback(msg, frac)
 
     _p("Loading audio file...", 0.05)
-    y, sr = librosa.load(audio_path, sr=None, mono=True)
+    y, sr = librosa.load(audio_path, sr=22050, mono=True)
 
     _p("Separating harmonic component...", 0.20)
-    y_harm = librosa.effects.harmonic(y, margin=4.0)
+    y_harm = librosa.effects.harmonic(y, margin=3.0)
 
     _p("Estimating tuning...", 0.30)
     tuning = librosa.estimate_tuning(y=y_harm, sr=sr)
@@ -481,7 +502,7 @@ def extract_chords_from_audio(audio_path, progress_callback=None):
     _p("Decoding chords with Viterbi...", 0.85)
     templates = generate_templates()                                  # (N_CHORD, 12)
     templates_c = templates - templates.mean(axis=1, keepdims=True)
-    transition = build_transition_matrix(self_trans=0.5, alpha=0.6)
+    transition = build_transition_matrix(self_trans=0.72, alpha=0.6)
     prior = _key_aware_prior(tonic, is_minor_key)
 
     # Silence mask based on relative RMS energy

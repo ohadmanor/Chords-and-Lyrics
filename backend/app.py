@@ -265,6 +265,31 @@ def download_youtube_audio(video_id: str, output_dir: str) -> str:
 # previously-sounding (leftover instrumental) chord is NOT prepended.
 SEED_HOLD_FRACTION = 0.4
 
+# Helper to snap character index to word boundaries for cleaner chord sheets
+def snap_to_word_boundaries(text: str, char_idx: int) -> int:
+    if char_idx <= 0 or char_idx >= len(text):
+        return char_idx
+    # If the character itself or the preceding character is whitespace,
+    # it is already at a word boundary (start or end).
+    if text[char_idx].isspace() or text[char_idx - 1].isspace():
+        return char_idx
+
+    # Find the start of the current word
+    start_word = char_idx
+    while start_word > 0 and not text[start_word - 1].isspace():
+        start_word -= 1
+
+    # Find the end of the current word
+    end_word = char_idx
+    while end_word < len(text) and not text[end_word].isspace():
+        end_word += 1
+
+    # Snap to the start of the word if we are closer to the start,
+    # or if we land within the first 2 characters of the word.
+    if (char_idx - start_word) < (end_word - char_idx) or (char_idx - start_word) <= 2:
+        return start_word
+    return char_idx
+
 def generate_aligned_sheet_internal(chords: list, lyrics: list, duration: float):
     if not lyrics:
         return {"chordsheet": "", "timestamps": []}
@@ -364,7 +389,15 @@ def generate_aligned_sheet_internal(chords: list, lyrics: list, duration: float)
                     continue
                 ratio = (t_chord - line_start) / singing_duration if singing_duration > 0 else 0.0
                 ratio = max(0.0, min(1.0, ratio))
+                
+                # Snapping chords close to the line start
+                time_diff = t_chord - line_start
+                if ratio < 0.08 or (0 < time_diff < 0.35):
+                    ratio = 0.0
+                    
                 char_idx = int(round(ratio * line_len))
+                char_idx = snap_to_word_boundaries(line_text, char_idx)
+                
                 # Never overwrite a previously placed chord label; keep a gap.
                 if char_idx < cursor:
                     char_idx = cursor

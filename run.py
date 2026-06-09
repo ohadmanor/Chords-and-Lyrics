@@ -98,6 +98,7 @@ def _dev_run_frontend() -> None:
 def run_dev(args) -> None:
     install_backend_dependencies()
     install_frontend_dependencies()
+    _ensure_ffmpeg()
 
     threading.Thread(target=_dev_run_backend, daemon=True).start()
     threading.Thread(target=_dev_run_frontend, daemon=True).start()
@@ -168,6 +169,7 @@ def run_prod(args) -> None:
 
     install_backend_dependencies()
     install_frontend_dependencies()
+    _ensure_ffmpeg()
 
     if skip_build and os.path.isdir(FRONTEND_DIST):
         print("Skipping build (--skip-build) — using existing dist.")
