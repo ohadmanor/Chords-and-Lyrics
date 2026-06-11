@@ -1,4 +1,4 @@
-# Harmonix (v1.0.1) - Chord & Lyrics Alignment Studio
+# Harmonix (v1.0.4) - Chord & Lyrics Alignment Studio
 
 Harmonix is a modern web application designed to automatically extract chords from audio tracks (local uploads or YouTube streams), retrieve/sync lyrics, group musical intervals into clean 4/4 bars, and provide an interactive workspace to verify, edit, and play along.
 

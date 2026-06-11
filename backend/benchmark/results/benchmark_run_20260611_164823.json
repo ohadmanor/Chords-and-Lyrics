@@ -1,0 +1,154 @@
+{
+  "createdAt": "2026-06-11T16:48:23.675770Z",
+  "offset": 0,
+  "limit": 3,
+  "summary": {
+    "evaluated": 3,
+    "failed": 0,
+    "meanSetF1": 0.6634768740031898,
+    "medianSetF1": 0.7272727272727273,
+    "meanTokenF1": 0.4726250102539188,
+    "meanBarConfidence": 0.5718150216563507,
+    "worstBySetF1": [
+      {
+        "id": "song_2",
+        "title": "Against All Odds",
+        "artist": "Phil Collins",
+        "setF1": 0.5263157894736842,
+        "tokenF1": 0.2732447817836813,
+        "avgBarConfidence": 0.6339879554533309
+      },
+      {
+        "id": "song_3",
+        "title": "Ain\u2019t No Sunshine",
+        "artist": "Bill Withers",
+        "setF1": 0.7272727272727273,
+        "tokenF1": 0.6615384615384615,
+        "avgBarConfidence": 0.4786795470583159
+      },
+      {
+        "id": "song_4",
+        "title": "All Out Of Love",
+        "artist": "Air Supply",
+        "setF1": 0.7368421052631577,
+        "tokenF1": 0.48309178743961356,
+        "avgBarConfidence": 0.6027775624574051
+      }
+    ]
+  },
+  "results": [
+    {
+      "id": "song_2",
+      "title": "Against All Odds",
+      "artist": "Phil Collins",
+      "youtubeUrl": "https://www.youtube.com/watch?v=SWSQS06i7-w",
+      "youtubeVideoId": "SWSQS06i7-w",
+      "estimatedKey": "Ab",
+      "predictedChordEvents": 105,
+      "predictedBars": 93,
+      "avgBeatConfidence": 0.634250809201864,
+      "avgBarConfidence": 0.6339879554533309,
+      "lowConfidenceBeatRatio": 0.1940700808625337,
+      "metrics": {
+        "predUnique": 18,
+        "refUnique": 20,
+        "uniqueOverlap": 10,
+        "setPrecision": 0.5555555555555556,
+        "setRecall": 0.5,
+        "setF1": 0.5263157894736842,
+        "tokenPrecision": 0.19618528610354224,
+        "tokenRecall": 0.45,
+        "tokenF1": 0.2732447817836813,
+        "missingReference": [
+          "A",
+          "B",
+          "C",
+          "Cm7",
+          "D",
+          "E",
+          "Em",
+          "F",
+          "F#7",
+          "G"
+        ],
+        "unexpectedPredicted": [
+          "A#",
+          "A#7",
+          "C#m",
+          "Cm",
+          "F#maj7",
+          "Fm7",
+          "G#7",
+          "G#maj7"
+        ]
+      }
+    },
+    {
+      "id": "song_3",
+      "title": "Ain\u2019t No Sunshine",
+      "artist": "Bill Withers",
+      "youtubeUrl": "https://www.youtube.com/watch?v=YuKfiH0Scao",
+      "youtubeVideoId": "YuKfiH0Scao",
+      "estimatedKey": "Am",
+      "predictedChordEvents": 70,
+      "predictedBars": 39,
+      "avgBeatConfidence": 0.48020345393510455,
+      "avgBarConfidence": 0.4786795470583159,
+      "lowConfidenceBeatRatio": 0.38961038961038963,
+      "metrics": {
+        "predUnique": 14,
+        "refUnique": 8,
+        "uniqueOverlap": 8,
+        "setPrecision": 0.5714285714285714,
+        "setRecall": 1.0,
+        "setF1": 0.7272727272727273,
+        "tokenPrecision": 0.5620915032679739,
+        "tokenRecall": 0.8037383177570093,
+        "tokenF1": 0.6615384615384615,
+        "missingReference": [],
+        "unexpectedPredicted": [
+          "Am7",
+          "Amaj7",
+          "C",
+          "Em7",
+          "Emaj7",
+          "Gm"
+        ]
+      }
+    },
+    {
+      "id": "song_4",
+      "title": "All Out Of Love",
+      "artist": "Air Supply",
+      "youtubeUrl": "https://www.youtube.com/watch?v=JWdZEumNRmI",
+      "youtubeVideoId": "JWdZEumNRmI",
+      "estimatedKey": "C",
+      "predictedChordEvents": 97,
+      "predictedBars": 100,
+      "avgBeatConfidence": 0.6027775624574051,
+      "avgBarConfidence": 0.6027775624574051,
+      "lowConfidenceBeatRatio": 0.2575,
+      "metrics": {
+        "predUnique": 9,
+        "refUnique": 10,
+        "uniqueOverlap": 7,
+        "setPrecision": 0.7777777777777778,
+        "setRecall": 0.7,
+        "setF1": 0.7368421052631577,
+        "tokenPrecision": 0.37593984962406013,
+        "tokenRecall": 0.6756756756756757,
+        "tokenF1": 0.48309178743961356,
+        "missingReference": [
+          "A",
+          "B",
+          "E"
+        ],
+        "unexpectedPredicted": [
+          "Bm",
+          "Fmaj7"
+        ]
+      }
+    }
+  ],
+  "failures": []
+}

@@ -17,6 +17,8 @@ _DCP = None
 _MADMOM_FPS = 10  # DeepChromaProcessor default frame rate
 
 PITCH_NAMES = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
+SHARP_PITCH_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+FLAT_PITCH_NAMES = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
 # State layout (length 61):
 #   0..11   major triads          (C, C#, ... B)
 #   12..23  minor triads          (Cm, C#m, ... Bm)
@@ -33,6 +35,10 @@ CHORD_NAMES = (
 )
 NUM_STATES = 61
 N_CHORD = 60  # index of the no-chord state
+NUM_ROOT_STATES = 13  # 12 pitch classes + no-chord
+N_ROOT = 12
+NUM_QUALITY_STATES = 6  # maj, min, maj7, m7, 7, no-chord
+N_QUALITY = 5
 
 
 # ----------------------------------------------------------------------------
@@ -46,30 +52,37 @@ def generate_templates():
     """
     templates = np.zeros((N_CHORD, 12))
     root_w, third_w, fifth_w, seventh_w = 1.0, 0.8, 0.6, 0.5
+    # Penalise the opposite third so C vs Am-type ambiguities separate better.
+    anti_third_w = -0.28
     for r in range(12):
         # Major triad
         templates[r, r] = root_w
         templates[r, (r + 4) % 12] = third_w
         templates[r, (r + 7) % 12] = fifth_w
+        templates[r, (r + 3) % 12] = anti_third_w
         # Minor triad
         templates[12 + r, r] = root_w
         templates[12 + r, (r + 3) % 12] = third_w
         templates[12 + r, (r + 7) % 12] = fifth_w
+        templates[12 + r, (r + 4) % 12] = anti_third_w
         # Maj7 (root, major 3, 5, major 7)
         templates[24 + r, r] = root_w
         templates[24 + r, (r + 4) % 12] = third_w
         templates[24 + r, (r + 7) % 12] = fifth_w
         templates[24 + r, (r + 11) % 12] = seventh_w
+        templates[24 + r, (r + 3) % 12] = anti_third_w
         # m7 (root, minor 3, 5, minor 7)
         templates[36 + r, r] = root_w
         templates[36 + r, (r + 3) % 12] = third_w
         templates[36 + r, (r + 7) % 12] = fifth_w
         templates[36 + r, (r + 10) % 12] = seventh_w
+        templates[36 + r, (r + 4) % 12] = anti_third_w
         # Dominant 7 (root, major 3, 5, minor 7)
         templates[48 + r, r] = root_w
         templates[48 + r, (r + 4) % 12] = third_w
         templates[48 + r, (r + 7) % 12] = fifth_w
         templates[48 + r, (r + 10) % 12] = seventh_w
+        templates[48 + r, (r + 3) % 12] = anti_third_w
     templates /= np.linalg.norm(templates, axis=1, keepdims=True)
     return templates
 
@@ -124,6 +137,8 @@ def build_transition_matrix(self_trans=0.85, alpha=0.6, n_prob=0.015):
     return T
 
 
+
+
 # ----------------------------------------------------------------------------
 # Chroma extraction helpers
 # ----------------------------------------------------------------------------
@@ -133,6 +148,81 @@ def _cqt_to_chroma(cqt, bin_start, bin_end):
     for b in range(bin_start, bin_end):
         chroma[b % 12] += cqt[b]
     return chroma
+
+
+def _match_frame_count(chroma, n_frames):
+    """Pad/trim chroma matrix to a target frame count."""
+    if chroma.shape[1] == n_frames:
+        return chroma
+    if chroma.shape[1] > n_frames:
+        return chroma[:, :n_frames]
+    if chroma.shape[1] == 0:
+        return np.zeros((12, n_frames), dtype=np.float64)
+    pad = np.repeat(chroma[:, -1:], n_frames - chroma.shape[1], axis=1)
+    return np.concatenate([chroma, pad], axis=1)
+
+
+def _l1_normalise(chroma, eps=1e-8):
+    sums = chroma.sum(axis=0, keepdims=True)
+    sums = np.where(sums < eps, 1.0, sums)
+    return chroma / sums
+
+
+def _temporal_median_filter(chroma, width=5):
+    """Median-smooth each pitch-class curve across time."""
+    if width <= 1 or chroma.shape[1] <= 2:
+        return chroma
+    if width % 2 == 0:
+        width += 1
+    pad = width // 2
+    padded = np.pad(chroma, ((0, 0), (pad, pad)), mode='edge')
+    out = np.empty_like(chroma)
+    for t in range(chroma.shape[1]):
+        out[:, t] = np.median(padded[:, t:t + width], axis=1)
+    return out
+
+
+def _fallback_treble_chroma(y_harm, sr, hop_length, tuning):
+    """
+    Stronger fallback front-end when madmom is unavailable.
+
+    Blend chroma_cqt + chroma_stft + chroma_cens and apply temporal median
+    smoothing to reduce jitter from vocals and percussive transients.
+    """
+    cqt = librosa.feature.chroma_cqt(
+        y=y_harm,
+        sr=sr,
+        hop_length=hop_length,
+        fmin=librosa.note_to_hz('C3'),
+        n_octaves=4,
+        bins_per_octave=36,
+        tuning=tuning,
+    )
+    stft = librosa.feature.chroma_stft(
+        y=y_harm,
+        sr=sr,
+        hop_length=hop_length,
+        tuning=tuning,
+        n_fft=4096,
+    )
+    cens = librosa.feature.chroma_cens(
+        y=y_harm,
+        sr=sr,
+        hop_length=hop_length,
+        n_chroma=12,
+    )
+
+    n_frames = cqt.shape[1]
+    stft = _match_frame_count(stft, n_frames)
+    cens = _match_frame_count(cens, n_frames)
+
+    cqt = _l1_normalise(np.maximum(0.0, cqt))
+    stft = _l1_normalise(np.maximum(0.0, stft))
+    cens = _l1_normalise(np.maximum(0.0, cens))
+
+    blended = 0.58 * cqt + 0.27 * stft + 0.15 * cens
+    blended = _temporal_median_filter(blended, width=5)
+    return blended
 
 
 def _log_normalise(chroma, eps=1e-6):
@@ -211,7 +301,7 @@ def _estimate_key(chroma_mean):
     return best
 
 
-def _key_aware_prior(tonic, is_minor, in_key_boost=1.15, off_key_seventh_penalty=0.6):
+def _key_aware_prior(tonic, is_minor, in_key_boost=1.15, off_key_seventh_penalty=0.52):
     """
     Build a length-NUM_STATES prior that gently favours diatonic chords of
     the estimated key. Out-of-key 7th chords get a small penalty so the
@@ -268,11 +358,25 @@ def _key_aware_weights(tonic, is_minor, diatonic_w=1.0, borrowed_w=0.35,
     Strong evidence can still overcome the weight, but weak/ambiguous beats
     no longer drift to out-of-scale chords.
     """
+    tiers = _key_tiers_by_state(tonic, is_minor)
+    weights = np.full(N_CHORD, chromatic_w, dtype=np.float64)
+    weights[tiers == 1] = borrowed_w
+    weights[tiers == 0] = diatonic_w
+    return weights
+
+
+def _key_tiers_by_state(tonic, is_minor):
+    """
+    Return per-state key tiers for chord states (size N_CHORD):
+      0: diatonic quality+root
+      1: scale root but borrowed quality
+      2: chromatic root outside scale
+    """
     if is_minor:
         major_tonic = (tonic + 3) % 12
     else:
         major_tonic = tonic
-    # Major scale pitch classes relative to the major tonic.
+
     scale_pcs = {(major_tonic + s) % 12 for s in (0, 2, 4, 5, 7, 9, 11)}
     diatonic_major_roots = {(major_tonic + s) % 12 for s in (0, 5, 7)}
     diatonic_minor_roots = {(major_tonic + s) % 12 for s in (2, 4, 9)}
@@ -280,26 +384,479 @@ def _key_aware_weights(tonic, is_minor, diatonic_w=1.0, borrowed_w=0.35,
     diatonic_m7_roots = {(major_tonic + s) % 12 for s in (2, 4, 9)}
     diatonic_7_roots = {(tonic + 7) % 12} if is_minor else {(major_tonic + 7) % 12}
 
-    weights = np.ones(N_CHORD)
+    tiers = np.full(N_CHORD, 2, dtype=np.int8)
     for s in range(N_CHORD):
         root, fam = s % 12, s // 12
-        if fam == 0:        # major triad
+        if fam == 0:
             diatonic = root in diatonic_major_roots
-        elif fam == 1:      # minor triad
+        elif fam == 1:
             diatonic = root in diatonic_minor_roots
-        elif fam == 2:      # maj7
+        elif fam == 2:
             diatonic = root in diatonic_maj7_roots
-        elif fam == 3:      # m7
+        elif fam == 3:
             diatonic = root in diatonic_m7_roots
-        else:               # dominant 7
-            diatonic = root in diatonic_7_roots
-        if diatonic:
-            weights[s] = diatonic_w
-        elif root in scale_pcs:
-            weights[s] = borrowed_w
         else:
-            weights[s] = chromatic_w
+            diatonic = root in diatonic_7_roots
+
+        if diatonic:
+            tiers[s] = 0
+        elif root in scale_pcs:
+            tiers[s] = 1
+    return tiers
+
+
+def _family_complexity_weights(triad_w=1.0, maj7_w=0.60, m7_w=0.72, dom7_w=0.70):
+    """Down-weight 7th families so triads win unless 7th evidence is clear."""
+    weights = np.full(N_CHORD, triad_w, dtype=np.float64)
+    weights[24:36] = maj7_w
+    weights[36:48] = m7_w
+    weights[48:60] = dom7_w
     return weights
+
+
+def _build_root_transition_matrix(self_trans=0.84, alpha=0.55, n_prob=0.03):
+    """Transition matrix for root-only decoding (12 roots + no-chord)."""
+    T = np.zeros((NUM_ROOT_STATES, NUM_ROOT_STATES), dtype=np.float64)
+    for s1 in range(NUM_ROOT_STATES):
+        for s2 in range(NUM_ROOT_STATES):
+            if s1 == s2:
+                T[s1, s2] = self_trans
+            elif s1 == N_ROOT or s2 == N_ROOT:
+                T[s1, s2] = n_prob
+            else:
+                T[s1, s2] = np.exp(-alpha * _fifth_distance(s1, s2))
+
+        off = [j for j in range(NUM_ROOT_STATES) if j != s1]
+        row_sum = T[s1, off].sum()
+        if row_sum > 0:
+            T[s1, off] *= (1.0 - self_trans) / row_sum
+        T[s1, s1] = self_trans
+    return T
+
+
+def _root_prior(tonic, is_minor):
+    """Key-aware initial prior for root decoding."""
+    major_tonic = (tonic + 3) % 12 if is_minor else tonic
+    scale_pcs = {(major_tonic + s) % 12 for s in (0, 2, 4, 5, 7, 9, 11)}
+    dominant = (major_tonic + 7) % 12
+    rel_minor = (major_tonic + 9) % 12
+
+    p = np.full(NUM_ROOT_STATES, 0.75, dtype=np.float64)
+    for r in range(12):
+        if r == major_tonic:
+            p[r] = 1.55
+        elif r == dominant:
+            p[r] = 1.35
+        elif r == rel_minor:
+            p[r] = 1.20
+        elif r in scale_pcs:
+            p[r] = 1.05
+    p[N_ROOT] = 0.08
+    p /= p.sum()
+    return p
+
+
+def _build_quality_transition_matrix(self_trans=0.80, n_prob=0.03):
+    """Transition matrix for quality decoding (maj/min/7 families + no-chord)."""
+    T = np.zeros((NUM_QUALITY_STATES, NUM_QUALITY_STATES), dtype=np.float64)
+
+    for q1 in range(NUM_QUALITY_STATES):
+        for q2 in range(NUM_QUALITY_STATES):
+            if q1 == q2:
+                T[q1, q2] = self_trans
+            elif q1 == N_QUALITY or q2 == N_QUALITY:
+                T[q1, q2] = n_prob
+            else:
+                w = 1.0
+                if (q1, q2) in ((0, 2), (2, 0), (0, 4), (4, 0), (1, 3), (3, 1)):
+                    w = 1.45
+                elif (q1 in (0, 2, 4) and q2 in (0, 2, 4)) or (q1 in (1, 3) and q2 in (1, 3)):
+                    w = 1.25
+                T[q1, q2] = w
+
+        off = [j for j in range(NUM_QUALITY_STATES) if j != q1]
+        row_sum = T[q1, off].sum()
+        if row_sum > 0:
+            T[q1, off] *= (1.0 - self_trans) / row_sum
+        T[q1, q1] = self_trans
+    return T
+
+
+def _decode_root_then_quality(emissions, sims_sharp, silence_mask, tonic, is_minor):
+    """
+    Two-stage decode:
+      1) Viterbi on roots (12 + N)
+      2) Viterbi on quality constrained by chosen root per beat
+    """
+    num_beats = sims_sharp.shape[1]
+
+    root_scores = np.zeros((12, num_beats), dtype=np.float64)
+    for root in range(12):
+        states = np.array([root, 12 + root, 24 + root, 36 + root, 48 + root], dtype=np.int32)
+        per_family = sims_sharp[states, :]
+        root_scores[root, :] = np.max(per_family, axis=0) + 0.35 * np.mean(per_family, axis=0)
+
+    root_emissions = np.zeros((NUM_ROOT_STATES, num_beats), dtype=np.float64)
+    root_emissions[:12, :] = root_scores
+    root_fallback = np.maximum(root_scores.mean(axis=0) * 0.06, 1e-8)
+    root_emissions[N_ROOT, :] = np.where(silence_mask, 1.0, root_fallback)
+    root_emissions[:12, silence_mask] = 1e-6
+    rs = root_emissions.sum(axis=0, keepdims=True)
+    rs = np.where(rs == 0.0, 1.0, rs)
+    root_emissions /= rs
+
+    root_path = librosa.sequence.viterbi(
+        root_emissions,
+        _build_root_transition_matrix(),
+        p_init=_root_prior(tonic, is_minor),
+    )
+
+    quality_emissions = np.zeros((NUM_QUALITY_STATES, num_beats), dtype=np.float64)
+    for beat in range(num_beats):
+        root = int(root_path[beat])
+        if root >= N_ROOT:
+            quality_emissions[N_QUALITY, beat] = 1.0
+            quality_emissions[:N_QUALITY, beat] = 1e-6
+            continue
+
+        states = np.array([root, 12 + root, 24 + root, 36 + root, 48 + root], dtype=np.int32)
+        quality_emissions[:N_QUALITY, beat] = emissions[states, beat]
+        quality_emissions[N_QUALITY, beat] = emissions[N_CHORD, beat] * 0.2
+
+        # Guard against inflated 7th-family picks on ambiguous beats.
+        triad_peak = max(float(emissions[root, beat]), float(emissions[12 + root, beat]))
+        if triad_peak > 0.0:
+            if float(emissions[24 + root, beat]) < triad_peak * 0.90:
+                quality_emissions[2, beat] *= 0.72
+            if float(emissions[36 + root, beat]) < triad_peak * 0.95:
+                quality_emissions[3, beat] *= 0.82
+            if float(emissions[48 + root, beat]) < triad_peak * 0.95:
+                quality_emissions[4, beat] *= 0.82
+
+    qs = quality_emissions.sum(axis=0, keepdims=True)
+    qs = np.where(qs == 0.0, 1.0, qs)
+    quality_emissions /= qs
+
+    quality_prior = np.array([0.36, 0.31, 0.10, 0.09, 0.10, 0.04], dtype=np.float64)
+    quality_prior /= quality_prior.sum()
+
+    quality_path = librosa.sequence.viterbi(
+        quality_emissions,
+        _build_quality_transition_matrix(),
+        p_init=quality_prior,
+    )
+
+    path = np.full(num_beats, N_CHORD, dtype=np.int32)
+    for beat in range(num_beats):
+        root = int(root_path[beat])
+        quality = int(quality_path[beat])
+        if root < N_ROOT and quality < N_QUALITY:
+            path[beat] = quality * 12 + root
+
+    return path, root_emissions
+
+
+def _compute_beat_confidence(path, emissions, root_emissions):
+    """Confidence score [0,1] per beat from chord prob, root prob and margin."""
+    num_beats = len(path)
+    conf = np.zeros(num_beats, dtype=np.float64)
+    for beat in range(num_beats):
+        state = int(path[beat])
+        if state >= N_CHORD:
+            conf[beat] = float(np.clip(emissions[N_CHORD, beat], 0.0, 1.0))
+            continue
+
+        chord_probs = emissions[:N_CHORD, beat]
+        p_state = float(chord_probs[state])
+        if chord_probs.size > 1:
+            # second-largest probability for margin confidence
+            second = float(np.partition(chord_probs, -2)[-2])
+        else:
+            second = 0.0
+        margin = max(0.0, (p_state - second) / max(p_state, 1e-8))
+        root_prob = float(root_emissions[state % 12, beat])
+        conf[beat] = float(np.clip(0.58 * p_state + 0.30 * root_prob + 0.12 * margin, 0.0, 1.0))
+    return conf
+
+
+def _stabilise_with_confidence(path, emissions, beat_confidence,
+                               weak_change_conf=0.38,
+                               outlier_conf=0.30,
+                               keep_ratio=0.82):
+    """
+    Hold previous chord on low-confidence flips and remove single-beat outliers.
+    """
+    fixed = np.array(path, dtype=np.int32, copy=True)
+    conf = np.array(beat_confidence, dtype=np.float64, copy=True)
+    num_beats = len(fixed)
+
+    for beat in range(1, num_beats):
+        cur = int(fixed[beat])
+        prev = int(fixed[beat - 1])
+        if cur >= N_CHORD or prev >= N_CHORD or cur == prev:
+            continue
+        cur_p = float(emissions[cur, beat])
+        prev_p = float(emissions[prev, beat])
+        if conf[beat] < weak_change_conf and prev_p >= cur_p * keep_ratio:
+            fixed[beat] = prev
+            conf[beat] = max(conf[beat], conf[beat - 1] * 0.90)
+
+    for beat in range(1, num_beats - 1):
+        if conf[beat] >= outlier_conf:
+            continue
+        left = int(fixed[beat - 1])
+        right = int(fixed[beat + 1])
+        cur = int(fixed[beat])
+        if left == right and left < N_CHORD and cur != left:
+            left_p = float(emissions[left, beat])
+            cur_p = float(emissions[cur, beat]) if cur < N_CHORD else 0.0
+            if left_p >= cur_p * 0.85:
+                fixed[beat] = left
+                conf[beat] = max(conf[beat], conf[beat - 1] * 0.92, conf[beat + 1] * 0.92)
+
+    return fixed, conf
+
+
+def _bar_confidence(beat_confidence, bar_beats=4):
+    vals = []
+    for i in range(0, len(beat_confidence), bar_beats):
+        seg = beat_confidence[i:i + bar_beats]
+        vals.append(float(np.mean(seg)) if len(seg) else 0.0)
+    return vals
+
+
+def _quality_evidence_weights(treble_norm, bass_norm, boost=0.52):
+    """
+    Per-beat quality weighting for major/minor disambiguation.
+
+    For each chord state, boost frames where the expected 3rd is stronger than
+    the opposite 3rd, and damp frames where the opposite 3rd dominates.
+    """
+    num_beats = treble_norm.shape[1]
+    weights = np.ones((N_CHORD, num_beats), dtype=np.float64)
+
+    for s in range(N_CHORD):
+        root = s % 12
+        fam = s // 12
+        is_major_quality = fam in (0, 2, 4)
+        good_third = (root + (4 if is_major_quality else 3)) % 12
+        bad_third = (root + (3 if is_major_quality else 4)) % 12
+
+        good_support = treble_norm[good_third, :] + 0.25 * bass_norm[good_third, :]
+        bad_support = treble_norm[bad_third, :] + 0.25 * bass_norm[bad_third, :]
+        delta = good_support - bad_support
+        weights[s, :] = np.clip(1.0 + boost * delta, 0.55, 1.70)
+
+        if fam in (2, 3, 4):
+            seventh_idx = (root + (11 if fam == 2 else 10)) % 12
+            seventh_support = treble_norm[seventh_idx, :] + 0.20 * bass_norm[seventh_idx, :]
+            root_support = treble_norm[root, :] + 0.20 * bass_norm[root, :]
+            seventh_ratio = seventh_support / np.maximum(root_support, 1e-6)
+            seventh_factor = np.clip(0.65 + 0.90 * seventh_ratio, 0.55, 1.15)
+            weights[s, :] *= seventh_factor
+
+    return weights
+
+
+def _repair_off_scale_states(
+    path,
+    emissions,
+    tonic,
+    is_minor,
+    chromatic_ratio=0.70,
+    borrowed_ratio=0.86,
+    strong_evidence_ratio=0.94,
+):
+    """
+    Correct low-confidence out-of-scale states after Viterbi.
+
+    This keeps strongly-supported chromatic moments, but when a chosen chord is
+    weak and an in-key alternative is close, it snaps to the in-key candidate.
+    """
+    fixed = np.array(path, dtype=np.int32, copy=True)
+    tiers = _key_tiers_by_state(tonic, is_minor)
+    diatonic_idx = np.where(tiers == 0)[0]
+    in_scale_idx = np.where(tiers <= 1)[0]
+    if len(diatonic_idx) == 0 or len(in_scale_idx) == 0:
+        return fixed
+
+    swaps = 0
+    num_beats = fixed.shape[0]
+    for beat in range(num_beats):
+        state = int(fixed[beat])
+        if state >= N_CHORD:
+            continue
+
+        tier = int(tiers[state])
+        if tier == 0:
+            continue
+
+        beat_em = emissions[:N_CHORD, beat]
+        peak = float(np.max(beat_em))
+        if peak <= 0.0:
+            continue
+        cur_p = float(beat_em[state])
+
+        # Keep genuine out-of-key moments when frame evidence is strong.
+        if cur_p >= peak * strong_evidence_ratio:
+            continue
+
+        # Single-beat outliers between matching neighbours are usually noise.
+        if 0 < beat < (num_beats - 1):
+            left = int(fixed[beat - 1])
+            right = int(fixed[beat + 1])
+            if left == right and left < N_CHORD:
+                neigh_tier = int(tiers[left])
+                neigh_p = float(beat_em[left])
+                if neigh_tier <= tier and neigh_p >= cur_p * 0.60:
+                    fixed[beat] = left
+                    swaps += 1
+                    continue
+
+        if tier >= 2:
+            pool = in_scale_idx
+            ratio = chromatic_ratio
+        else:
+            pool = diatonic_idx
+            ratio = borrowed_ratio
+
+        best_local = int(np.argmax(beat_em[pool]))
+        best_state = int(pool[best_local])
+        best_p = float(beat_em[best_state])
+
+        if best_p >= max(peak * 0.30, cur_p * ratio):
+            fixed[beat] = best_state
+            swaps += 1
+
+    if swaps:
+        print(f"[chord_extractor] Key-repair adjusted {swaps} beat(s).")
+    return fixed
+
+
+def _repair_major_minor_quality(
+    path,
+    emissions,
+    treble_norm,
+    bass_norm,
+    min_to_maj_ratio=1.06,
+    maj_to_min_ratio=1.16,
+    min_to_maj_emission_ratio=0.84,
+    maj_to_min_emission_ratio=0.95,
+):
+    """
+    Correct likely major/minor confusions for the same root after Viterbi.
+
+    The decoder can occasionally prefer a minor triad when a major quality is
+    more plausible. We compare local major-vs-minor third evidence plus family
+    emission support and only switch when the alternate quality is clearly more
+    consistent.
+    """
+    fixed = np.array(path, dtype=np.int32, copy=True)
+    num_beats = fixed.shape[0]
+    if num_beats == 0:
+        return fixed
+
+    swaps = 0
+    major_families = {0, 2, 4}
+    minor_families = {1, 3}
+
+    for beat in range(num_beats):
+        state = int(fixed[beat])
+        if state >= N_CHORD:
+            continue
+
+        fam = state // 12
+        if fam not in (0, 1):
+            continue
+
+        root = state % 12
+        major_state = root
+        minor_state = 12 + root
+
+        # Single-beat quality spikes are often noise; trust matching neighbours
+        # on the same root before looking at frame-level evidence.
+        if 0 < beat < (num_beats - 1):
+            left = int(fixed[beat - 1])
+            right = int(fixed[beat + 1])
+            if left == right and left < N_CHORD and (left % 12) == root:
+                neigh_fam = left // 12
+                if fam == 1 and neigh_fam in major_families:
+                    fixed[beat] = major_state
+                    swaps += 1
+                    continue
+                if fam == 0 and neigh_fam in minor_families:
+                    fixed[beat] = minor_state
+                    swaps += 1
+                    continue
+
+        win_start = max(0, beat - 1)
+        win_end = min(num_beats, beat + 2)
+
+        major_third_idx = (root + 4) % 12
+        minor_third_idx = (root + 3) % 12
+
+        major_third_support = float(np.mean(
+            treble_norm[major_third_idx, win_start:win_end]
+            + 0.30 * bass_norm[major_third_idx, win_start:win_end]
+        ))
+        minor_third_support = float(np.mean(
+            treble_norm[minor_third_idx, win_start:win_end]
+            + 0.30 * bass_norm[minor_third_idx, win_start:win_end]
+        ))
+
+        # Compare quality support across related families with same root.
+        major_family_support = float(np.mean(
+            emissions[[major_state, 24 + root, 48 + root], win_start:win_end]
+        ))
+        minor_family_support = float(np.mean(
+            emissions[[minor_state, 36 + root], win_start:win_end]
+        ))
+
+        if fam == 1:
+            # Minor -> major: allow easier switch to reduce false minor labels.
+            if (
+                major_third_support >= (minor_third_support * min_to_maj_ratio)
+                and major_family_support >= (minor_family_support * min_to_maj_emission_ratio)
+            ):
+                fixed[beat] = major_state
+                swaps += 1
+        else:
+            # Major -> minor: require stronger evidence to avoid over-correcting.
+            if (
+                minor_third_support >= (major_third_support * maj_to_min_ratio)
+                and minor_family_support >= (major_family_support * maj_to_min_emission_ratio)
+            ):
+                fixed[beat] = minor_state
+                swaps += 1
+
+    if swaps:
+        print(f"[chord_extractor] Quality-repair adjusted {swaps} beat(s).")
+    return fixed
+
+
+def _prefer_sharp_names(tonic, is_minor):
+    """Choose accidental style from key center (sharp keys vs flat keys)."""
+    major_tonic = (tonic + 3) % 12 if is_minor else tonic
+    return major_tonic not in {5, 10, 3, 8}
+
+
+def _state_to_chord_name(state, tonic, is_minor):
+    if state < 0 or state >= N_CHORD:
+        return ""
+    names = SHARP_PITCH_NAMES if _prefer_sharp_names(tonic, is_minor) else FLAT_PITCH_NAMES
+    root = names[state % 12]
+    fam = state // 12
+    if fam == 0:
+        suffix = ""
+    elif fam == 1:
+        suffix = "m"
+    elif fam == 2:
+        suffix = "maj7"
+    elif fam == 3:
+        suffix = "m7"
+    else:
+        suffix = "7"
+    return root + suffix
 
 
 # ----------------------------------------------------------------------------
@@ -350,7 +907,7 @@ def estimate_vocals_start_time(y, sr):
 # ----------------------------------------------------------------------------
 # Slash-chord resolution
 # ----------------------------------------------------------------------------
-def _decode_with_slash(path, bass_norm):
+def _decode_with_slash(path, bass_norm, tonic, is_minor):
     """
     Walk the Viterbi path one chord-segment at a time. For each segment,
     pick the bass note dominant *across the whole segment*; only emit a
@@ -369,7 +926,7 @@ def _decode_with_slash(path, bass_norm):
             i = j
             continue
 
-        chord_label = CHORD_NAMES[state]
+        chord_label = _state_to_chord_name(state, tonic, is_minor)
         root_idx = state % 12
         fam = state // 12
         is_minor_chord = fam in (1, 3)
@@ -378,11 +935,12 @@ def _decode_with_slash(path, bass_norm):
 
         seg_bass = bass_norm[:, i:j].mean(axis=1)
         bass_idx = int(np.argmax(seg_bass))
+        names = SHARP_PITCH_NAMES if _prefer_sharp_names(tonic, is_minor) else FLAT_PITCH_NAMES
         chord_name = chord_label
         if (bass_idx != root_idx
                 and bass_idx in (third, fifth)
                 and seg_bass[bass_idx] > seg_bass[root_idx] * 1.25):
-            chord_name = f"{chord_label}/{PITCH_NAMES[bass_idx]}"
+            chord_name = f"{chord_label}/{names[bass_idx]}"
 
         for k in range(i, j):
             decoded[k] = chord_name
@@ -395,7 +953,14 @@ def _decode_with_slash(path, bass_norm):
 # ----------------------------------------------------------------------------
 def extract_chords_from_audio(audio_path, progress_callback=None):
     """
-    Returns: { "chords": [...], "bpm": float, "bars": [...], "estimated_lyrics_start": float }
+        Returns: {
+            "chords": [...],
+            "bpm": float,
+            "bars": [...],
+            "estimated_lyrics_start": float,
+            "beat_confidence": [...],
+            "bar_confidence": [...]
+        }
     """
     def _p(msg, frac):
         if progress_callback:
@@ -434,21 +999,20 @@ def extract_chords_from_audio(audio_path, progress_callback=None):
     rms = librosa.feature.rms(y=y_harm, hop_length=hop_length)[0]
 
     # Bass: octaves 1-3 (bins 0..35, ~32-260 Hz) — wider so high-key bass notes survive
-    # Treble: prefer madmom's deep-learned chroma (Path C hybrid) which is far
-    #         cleaner/harmony-focused; fall back to librosa chroma_cqt when
-    #         madmom is unavailable.
+    # Treble: prefer madmom deep chroma, blended with a stronger librosa
+    # fallback front-end for stability.
     bass_chroma_full = _cqt_to_chroma(cqt, 0, 36)
+    fallback_treble = _fallback_treble_chroma(y_harm, sr, hop_length, tuning)
     treble_chroma_full = _madmom_treble_chroma(
         audio_path, sr, hop_length, cqt.shape[1])
     if treble_chroma_full is not None:
-        print("[chord_extractor] Treble chroma: madmom DeepChroma (hybrid)")
+        treble_chroma_full = _match_frame_count(treble_chroma_full, fallback_treble.shape[1])
+        treble_chroma_full = 0.78 * treble_chroma_full + 0.22 * fallback_treble
+        treble_chroma_full = _temporal_median_filter(treble_chroma_full, width=3)
+        print("[chord_extractor] Treble chroma: madmom + librosa blended front-end")
     else:
-        print("[chord_extractor] Treble chroma: librosa chroma_cqt (fallback)")
-        treble_chroma_full = librosa.feature.chroma_cqt(
-            y=y_harm, sr=sr, hop_length=hop_length,
-            fmin=librosa.note_to_hz('C3'),
-            n_octaves=4, bins_per_octave=36, tuning=tuning,
-        )
+        print("[chord_extractor] Treble chroma: librosa hybrid fallback")
+        treble_chroma_full = fallback_treble
 
     _p("Synchronising features to beats...", 0.70)
     if len(beat_frames) > 0:
@@ -525,12 +1089,20 @@ def extract_chords_from_audio(audio_path, progress_callback=None):
     bass_boost = 1.0 + 1.5 * bass_strength
     sims_sharp = sims_sharp * bass_boost
 
+    # Prefer the quality whose third is actually present on this beat.
+    quality_weights = _quality_evidence_weights(treble_norm, bass_norm)
+    sims_sharp = sims_sharp * quality_weights
+
     # Per-beat diatonic biasing: enforce the estimated key on every frame so
     # weak/ambiguous beats stop drifting to out-of-scale chords. Applied as a
     # multiplicative weight (broadcast over all beats) that strong evidence can
     # still overcome.
     key_weights = _key_aware_weights(tonic, is_minor_key)
     sims_sharp = sims_sharp * key_weights[:, np.newaxis]
+
+    # 7th chords are available, but triads should win unless evidence is clear.
+    family_weights = _family_complexity_weights()
+    sims_sharp = sims_sharp * family_weights[:, np.newaxis]
 
     emissions = np.zeros((NUM_STATES, num_beats))
     emissions[:N_CHORD, :] = sims_sharp
@@ -541,31 +1113,64 @@ def extract_chords_from_audio(audio_path, progress_callback=None):
     col_sums = np.where(col_sums == 0, 1.0, col_sums)
     emissions /= col_sums
 
-    path = librosa.sequence.viterbi(emissions, transition, p_init=prior)
+    # Root-first then quality-second decoding (more stable major/minor handling).
+    path, root_emissions = _decode_root_then_quality(
+        emissions=emissions,
+        sims_sharp=sims_sharp,
+        silence_mask=silence_mask,
+        tonic=tonic,
+        is_minor=is_minor_key,
+    )
+
+    # Keep classic full-state decode around as a fallback for severe mismatch.
+    legacy_path = librosa.sequence.viterbi(emissions, transition, p_init=prior)
+    mismatch = float(np.mean(path != legacy_path)) if num_beats else 0.0
+    if mismatch > 0.72:
+        path = legacy_path
+        root_emissions = np.zeros((NUM_ROOT_STATES, num_beats), dtype=np.float64)
+        root_emissions[:12, :] = emissions[:12, :]
+        root_emissions[N_ROOT, :] = emissions[N_CHORD, :]
+        print("[chord_extractor] Root/quality decode diverged heavily; using legacy path fallback.")
+
+    path = _repair_off_scale_states(path, emissions, tonic, is_minor_key)
+    path = _repair_major_minor_quality(path, emissions, treble_norm, bass_norm)
+
+    beat_confidence = _compute_beat_confidence(path, emissions, root_emissions)
+    path, beat_confidence = _stabilise_with_confidence(path, emissions, beat_confidence)
 
     _p("Resolving slash chords...", 0.92)
-    chords_decoded = _decode_with_slash(path, bass_norm)
+    chords_decoded = _decode_with_slash(path, bass_norm, tonic, is_minor_key)
 
     # Compress consecutive duplicates → time-aligned list
     compressed = []
-    current = None
-    for col in range(num_beats):
+    col = 0
+    while col < num_beats:
         name = chords_decoded[col]
-        if name != current:
-            compressed.append({"time": float(beat_times[col]), "chord": name})
-            current = name
+        end = col + 1
+        while end < num_beats and chords_decoded[end] == name:
+            end += 1
+        seg_conf = float(np.mean(beat_confidence[col:end])) if end > col else 0.0
+        compressed.append({
+            "time": float(beat_times[col]),
+            "chord": name,
+            "confidence": seg_conf,
+        })
+        col = end
 
     # Group into 4/4 bars
     bars = []
+    bar_confidence = _bar_confidence(beat_confidence, bar_beats=4)
     bar_beats = 4
     for i in range(0, num_beats, bar_beats):
         seg = list(chords_decoded[i:i + bar_beats])
         if len(seg) < bar_beats:
             seg += [""] * (bar_beats - len(seg))
+        bar_idx = i // bar_beats
         bars.append({
-            "bar_index": (i // bar_beats) + 1,
+            "bar_index": bar_idx + 1,
             "chords": seg,
             "time": float(beat_times[i]),
+            "confidence": bar_confidence[bar_idx] if bar_idx < len(bar_confidence) else 0.0,
         })
 
     # Vocal onset → nearest beat
@@ -581,7 +1186,10 @@ def extract_chords_from_audio(audio_path, progress_callback=None):
         "chords": compressed,
         "bpm": bpm,
         "bars": bars,
+        "estimated_key": key_name,
         "estimated_lyrics_start": estimated_lyrics_start,
+        "beat_confidence": beat_confidence.tolist(),
+        "bar_confidence": bar_confidence,
     }
 
 

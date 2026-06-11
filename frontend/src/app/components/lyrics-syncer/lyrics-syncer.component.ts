@@ -11,7 +11,7 @@ import {
   LucideUndo2, 
   LucideAlignLeft 
 } from '@lucide/angular';
-import { ApiService, ChordData, LyricsLine } from '../../services/api.service';
+import { ApiService, BarData, ChordData, LyricsLine } from '../../services/api.service';
 
 interface SyncLine {
   text: string;
@@ -42,6 +42,7 @@ export class LyricsSyncerComponent implements OnInit, OnChanges {
   @Input() currentTime = 0;
   @Input() duration = 0;
   @Input() chords: ChordData[] = [];
+  @Input() bars: BarData[] = [];
   @Input() rawLyrics = '';
   @Input() selectedStartBarTime = 0;
 
@@ -171,7 +172,8 @@ export class LyricsSyncerComponent implements OnInit, OnChanges {
       const result = await this.apiService.generateChordsheet(
         this.chords,
         finalSyncedLyrics,
-        this.duration || 300.0
+        this.duration || 300.0,
+        this.bars
       );
       this.onSyncComplete.emit({
         chordsheet: result.chordsheet,

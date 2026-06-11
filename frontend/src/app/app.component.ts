@@ -342,36 +342,45 @@ export class AppComponent implements OnInit, OnDestroy {
     this.bars = event.compiledBars;
     this.selectedStartBarTime = event.selectedBarTime;
 
-    const lyricLines = event.localLyrics.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-
     if (this.autoSynced && this.lyrics.length > 0) {
-      // Align edited lines with original timestamps using dynamic sequence alignment
-      const alignedBase = this.alignLyrics(lyricLines, this.lyrics);
-      
-      // Calculate offset shift relative to the new first line's original time
-      const originalFirstTime = alignedBase[0] ? alignedBase[0].time : (this.lyrics[0] ? this.lyrics[0].time : 0);
-      const offset = event.selectedBarTime - originalFirstTime;
-
-      const alignedLyrics = alignedBase.map(item => {
-        return {
-          text: item.text,
-          time: Math.max(0.0, item.time + offset),
-          duration: item.duration
-        };
-      });
-
       this.error = '';
       this.success = '';
       try {
+        const repaired = await this.apiService.alignLyricsForSync(
+          event.localLyrics,
+          this.lyrics,
+          event.selectedBarTime
+        );
+
+        const alignedLyrics: LyricsLine[] = Array.isArray(repaired?.lyrics)
+          ? repaired.lyrics
+          : [];
+
+        // If transcription is too noisy to recover, stop auto-sync and move the
+        // user to manual tap sync instead of generating a misleading chordsheet.
+        if (alignedLyrics.length < 2) {
+          this.unsyncedLyrics = event.localLyrics;
+          this.activeTab = 'sync';
+          this.error = repaired?.message || 'Lyric transcription is too inconsistent for safe auto-sync. Please use Manual Sync to rebuild timings.';
+          if (event.selectedBarTime > 0) {
+            const seekTarget = Math.max(0.0, event.selectedBarTime - 4.0);
+            this.handleSeek(seekTarget);
+          }
+          return;
+        }
+
         const result = await this.apiService.generateChordsheet(
           event.chords,
           alignedLyrics,
-          this.audioService.duration() || 300.0
+          this.audioService.duration() || 300.0,
+          event.compiledBars
         );
         this.chordsheetText = result.chordsheet;
         this.timestamps = result.timestamps;
         this.activeTab = 'editor';
-        this.success = 'Chord sheet synced successfully! Alignment shifted by selected bar start.';
+        this.success = repaired?.projected
+          ? 'Transcription text was repaired against timing and then synced. Please review chord placement in the editor.'
+          : 'Chord sheet synced successfully with corrected lyric timing.';
       } catch (err: any) {
         this.error = err.message || 'Server error occurred during chordsheet synchronization.';
       }

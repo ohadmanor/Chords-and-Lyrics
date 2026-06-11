@@ -1,0 +1,1049 @@
+{
+  "createdAt": "2026-06-11T16:58:47.650427Z",
+  "offset": 0,
+  "limit": 24,
+  "summary": {
+    "evaluated": 24,
+    "failed": 0,
+    "meanSetF1": 0.6025389946206651,
+    "medianSetF1": 0.6132478632478632,
+    "meanTokenF1": 0.40474157547932854,
+    "meanBarConfidence": 0.5848484210368299,
+    "worstBySetF1": [
+      {
+        "id": "song_5",
+        "title": "All Right Now",
+        "artist": "Free",
+        "setF1": 0.3333333333333333,
+        "tokenF1": 0.30731707317073176,
+        "avgBarConfidence": 0.4868339998968509
+      },
+      {
+        "id": "song_288",
+        "title": "\u05d1\u05dc\u05d3\u05d4 \u05dc\u05d0\u05d9\u05e9\u05d4",
+        "artist": "\u05e0\u05d5\u05e8\u05d9\u05ea \u05d2\u05dc\u05e8\u05d5\u05df",
+        "setF1": 0.40740740740740744,
+        "tokenF1": 0.2233250620347395,
+        "avgBarConfidence": 0.5495464342851792
+      },
+      {
+        "id": "song_239",
+        "title": "\u05d0\u05d5\u05d4\u05d1 \u05dc\u05d4\u05d9\u05d5\u05ea \u05d1\u05d1\u05d9\u05ea",
+        "artist": "\u05d0\u05e8\u05d9\u05e7 \u05d0\u05d9\u05d9\u05e0\u05e9\u05d8\u05d9\u05d9\u05df",
+        "setF1": 0.42857142857142855,
+        "tokenF1": 0.2631578947368421,
+        "avgBarConfidence": 0.502117012833658
+      },
+      {
+        "id": "song_232",
+        "title": "\u05d0\u05d1\u05e1\u05d5\u05e8\u05d3",
+        "artist": "\u05e9\u05dc\u05de\u05d4 \u05d0\u05e8\u05e6\u05d9",
+        "setF1": 0.4999999999999999,
+        "tokenF1": 0.29526462395543174,
+        "avgBarConfidence": 0.6472595176227481
+      },
+      {
+        "id": "song_219",
+        "title": "Why Worry",
+        "artist": "Dire Straits",
+        "setF1": 0.5,
+        "tokenF1": 0.2616216216216216,
+        "avgBarConfidence": 0.6199941178819196
+      },
+      {
+        "id": "song_2",
+        "title": "Against All Odds",
+        "artist": "Phil Collins",
+        "setF1": 0.5263157894736842,
+        "tokenF1": 0.2732447817836813,
+        "avgBarConfidence": 0.6339879554533309
+      },
+      {
+        "id": "song_6",
+        "title": "Almaz",
+        "artist": "Randy Crawford",
+        "setF1": 0.5263157894736842,
+        "tokenF1": 0.26315789473684215,
+        "avgBarConfidence": 0.607968456146214
+      },
+      {
+        "id": "song_90",
+        "title": "If It Makes You Happy",
+        "artist": "Sheryl Crow",
+        "setF1": 0.5454545454545455,
+        "tokenF1": 0.30882352941176466,
+        "avgBarConfidence": 0.6072622025745688
+      },
+      {
+        "id": "song_237",
+        "title": "\u05d0\u05d4\u05d1\u05ea\u05d9\u05d4",
+        "artist": "\u05e9\u05dc\u05de\u05d4 \u05d0\u05e8\u05e6\u05d9",
+        "setF1": 0.5581395348837209,
+        "tokenF1": 0.39999999999999997,
+        "avgBarConfidence": 0.5342710167443784
+      },
+      {
+        "id": "song_252",
+        "title": "\u05d0\u05dc \u05ea\u05d3\u05d0\u05d2",
+        "artist": "\u05d0\u05d1\u05d9\u05d1 \u05d2\u05e4\u05df",
+        "setF1": 0.588235294117647,
+        "tokenF1": 0.3574144486692015,
+        "avgBarConfidence": 0.5192735193268814
+      }
+    ]
+  },
+  "results": [
+    {
+      "id": "song_2",
+      "title": "Against All Odds",
+      "artist": "Phil Collins",
+      "youtubeUrl": "https://www.youtube.com/watch?v=SWSQS06i7-w",
+      "youtubeVideoId": "SWSQS06i7-w",
+      "estimatedKey": "Ab",
+      "predictedChordEvents": 105,
+      "predictedBars": 93,
+      "avgBeatConfidence": 0.634250809201864,
+      "avgBarConfidence": 0.6339879554533309,
+      "lowConfidenceBeatRatio": 0.1940700808625337,
+      "metrics": {
+        "predUnique": 18,
+        "refUnique": 20,
+        "uniqueOverlap": 10,
+        "setPrecision": 0.5555555555555556,
+        "setRecall": 0.5,
+        "setF1": 0.5263157894736842,
+        "tokenPrecision": 0.19618528610354224,
+        "tokenRecall": 0.45,
+        "tokenF1": 0.2732447817836813,
+        "missingReference": [
+          "A",
+          "B",
+          "C",
+          "Cm7",
+          "D",
+          "E",
+          "Em",
+          "F",
+          "F#7",
+          "G"
+        ],
+        "unexpectedPredicted": [
+          "A#",
+          "A#7",
+          "C#m",
+          "Cm",
+          "F#maj7",
+          "Fm7",
+          "G#7",
+          "G#maj7"
+        ]
+      }
+    },
+    {
+      "id": "song_3",
+      "title": "Ain\u2019t No Sunshine",
+      "artist": "Bill Withers",
+      "youtubeUrl": "https://www.youtube.com/watch?v=YuKfiH0Scao",
+      "youtubeVideoId": "YuKfiH0Scao",
+      "estimatedKey": "Am",
+      "predictedChordEvents": 70,
+      "predictedBars": 39,
+      "avgBeatConfidence": 0.48020345393510455,
+      "avgBarConfidence": 0.4786795470583159,
+      "lowConfidenceBeatRatio": 0.38961038961038963,
+      "metrics": {
+        "predUnique": 14,
+        "refUnique": 8,
+        "uniqueOverlap": 8,
+        "setPrecision": 0.5714285714285714,
+        "setRecall": 1.0,
+        "setF1": 0.7272727272727273,
+        "tokenPrecision": 0.5620915032679739,
+        "tokenRecall": 0.8037383177570093,
+        "tokenF1": 0.6615384615384615,
+        "missingReference": [],
+        "unexpectedPredicted": [
+          "Am7",
+          "Amaj7",
+          "C",
+          "Em7",
+          "Emaj7",
+          "Gm"
+        ]
+      }
+    },
+    {
+      "id": "song_4",
+      "title": "All Out Of Love",
+      "artist": "Air Supply",
+      "youtubeUrl": "https://www.youtube.com/watch?v=JWdZEumNRmI",
+      "youtubeVideoId": "JWdZEumNRmI",
+      "estimatedKey": "C",
+      "predictedChordEvents": 97,
+      "predictedBars": 100,
+      "avgBeatConfidence": 0.6027775624574051,
+      "avgBarConfidence": 0.6027775624574051,
+      "lowConfidenceBeatRatio": 0.2575,
+      "metrics": {
+        "predUnique": 9,
+        "refUnique": 10,
+        "uniqueOverlap": 7,
+        "setPrecision": 0.7777777777777778,
+        "setRecall": 0.7,
+        "setF1": 0.7368421052631577,
+        "tokenPrecision": 0.37593984962406013,
+        "tokenRecall": 0.6756756756756757,
+        "tokenF1": 0.48309178743961356,
+        "missingReference": [
+          "A",
+          "B",
+          "E"
+        ],
+        "unexpectedPredicted": [
+          "Bm",
+          "Fmaj7"
+        ]
+      }
+    },
+    {
+      "id": "song_5",
+      "title": "All Right Now",
+      "artist": "Free",
+      "youtubeUrl": "https://www.youtube.com/watch?v=7cQ4jNDRTOo",
+      "youtubeVideoId": "7cQ4jNDRTOo",
+      "estimatedKey": "A",
+      "predictedChordEvents": 199,
+      "predictedBars": 167,
+      "avgBeatConfidence": 0.4881619004518179,
+      "avgBarConfidence": 0.4868339998968509,
+      "lowConfidenceBeatRatio": 0.3669172932330827,
+      "metrics": {
+        "predUnique": 22,
+        "refUnique": 8,
+        "uniqueOverlap": 5,
+        "setPrecision": 0.22727272727272727,
+        "setRecall": 0.625,
+        "setF1": 0.3333333333333333,
+        "tokenPrecision": 0.1903323262839879,
+        "tokenRecall": 0.7974683544303798,
+        "tokenF1": 0.30731707317073176,
+        "missingReference": [
+          "B",
+          "F",
+          "F#"
+        ],
+        "unexpectedPredicted": [
+          "Am",
+          "Am7",
+          "Amaj7",
+          "Bm",
+          "Bm7",
+          "C#m7",
+          "Dm7",
+          "E7",
+          "Em",
+          "Em7",
+          "F#m",
+          "F#m7",
+          "F#maj7",
+          "G#",
+          "G#maj7",
+          "Gm",
+          "Gmaj7"
+        ]
+      }
+    },
+    {
+      "id": "song_6",
+      "title": "Almaz",
+      "artist": "Randy Crawford",
+      "youtubeUrl": "https://www.youtube.com/watch?v=n6vlSgaKeG8",
+      "youtubeVideoId": "n6vlSgaKeG8",
+      "estimatedKey": "Am",
+      "predictedChordEvents": 184,
+      "predictedBars": 137,
+      "avgBeatConfidence": 0.6064111516225641,
+      "avgBarConfidence": 0.607968456146214,
+      "lowConfidenceBeatRatio": 0.22201834862385322,
+      "metrics": {
+        "predUnique": 24,
+        "refUnique": 14,
+        "uniqueOverlap": 10,
+        "setPrecision": 0.4166666666666667,
+        "setRecall": 0.7142857142857143,
+        "setF1": 0.5263157894736842,
+        "tokenPrecision": 0.16544117647058823,
+        "tokenRecall": 0.6428571428571429,
+        "tokenF1": 0.26315789473684215,
+        "missingReference": [
+          "A#7",
+          "A#m7",
+          "B",
+          "Gm7"
+        ],
+        "unexpectedPredicted": [
+          "A#",
+          "A#maj7",
+          "Am",
+          "Am7",
+          "Amaj7",
+          "Bm",
+          "Bm7",
+          "Dm7",
+          "E7",
+          "Emaj7",
+          "Fm",
+          "Fmaj7",
+          "G",
+          "G#m"
+        ]
+      }
+    },
+    {
+      "id": "song_90",
+      "title": "If It Makes You Happy",
+      "artist": "Sheryl Crow",
+      "youtubeUrl": "https://www.youtube.com/watch?v=dyihQtBes1I",
+      "youtubeVideoId": "dyihQtBes1I",
+      "estimatedKey": "G",
+      "predictedChordEvents": 92,
+      "predictedBars": 107,
+      "avgBeatConfidence": 0.6071942265257337,
+      "avgBarConfidence": 0.6072622025745688,
+      "lowConfidenceBeatRatio": 0.21311475409836064,
+      "metrics": {
+        "predUnique": 13,
+        "refUnique": 9,
+        "uniqueOverlap": 6,
+        "setPrecision": 0.46153846153846156,
+        "setRecall": 0.6666666666666666,
+        "setF1": 0.5454545454545455,
+        "tokenPrecision": 0.2,
+        "tokenRecall": 0.6774193548387096,
+        "tokenF1": 0.30882352941176466,
+        "missingReference": [
+          "B",
+          "E",
+          "F"
+        ],
+        "unexpectedPredicted": [
+          "Am7",
+          "Bm",
+          "Bm7",
+          "Dmaj7",
+          "Em7",
+          "Gm",
+          "Gmaj7"
+        ]
+      }
+    },
+    {
+      "id": "song_219",
+      "title": "Why Worry",
+      "artist": "Dire Straits",
+      "youtubeUrl": "https://www.youtube.com/watch?v=YMh4jMVSO1Q",
+      "youtubeVideoId": "YMh4jMVSO1Q",
+      "estimatedKey": "B",
+      "predictedChordEvents": 235,
+      "predictedBars": 196,
+      "avgBeatConfidence": 0.6199941178819196,
+      "avgBarConfidence": 0.6199941178819196,
+      "lowConfidenceBeatRatio": 0.24362244897959184,
+      "metrics": {
+        "predUnique": 16,
+        "refUnique": 12,
+        "uniqueOverlap": 7,
+        "setPrecision": 0.4375,
+        "setRecall": 0.5833333333333334,
+        "setF1": 0.5,
+        "tokenPrecision": 0.1547314578005115,
+        "tokenRecall": 0.8461538461538461,
+        "tokenF1": 0.2616216216216216,
+        "missingReference": [
+          "A#",
+          "C",
+          "D",
+          "F",
+          "G"
+        ],
+        "unexpectedPredicted": [
+          "Bm",
+          "Bm7",
+          "D#m",
+          "Em",
+          "F#7",
+          "F#m",
+          "F#m7",
+          "G#m",
+          "G#m7"
+        ]
+      }
+    },
+    {
+      "id": "song_220",
+      "title": "Wild Horses",
+      "artist": "The Rolling Stones",
+      "youtubeUrl": "https://www.youtube.com/watch?v=SQTHB4jM-KQ",
+      "youtubeVideoId": "SQTHB4jM-KQ",
+      "estimatedKey": "G",
+      "predictedChordEvents": 147,
+      "predictedBars": 103,
+      "avgBeatConfidence": 0.5910756476312654,
+      "avgBarConfidence": 0.5909149309170764,
+      "lowConfidenceBeatRatio": 0.23170731707317074,
+      "metrics": {
+        "predUnique": 17,
+        "refUnique": 9,
+        "uniqueOverlap": 9,
+        "setPrecision": 0.5294117647058824,
+        "setRecall": 1.0,
+        "setF1": 0.6923076923076924,
+        "tokenPrecision": 0.2818627450980392,
+        "tokenRecall": 0.9274193548387096,
+        "tokenF1": 0.4323308270676692,
+        "missingReference": [],
+        "unexpectedPredicted": [
+          "Am7",
+          "Amaj7",
+          "Cm",
+          "Cmaj7",
+          "D7",
+          "Em",
+          "Gm",
+          "Gmaj7"
+        ]
+      }
+    },
+    {
+      "id": "song_222",
+      "title": "Wind of Change",
+      "artist": "Scorpions",
+      "youtubeUrl": "https://www.youtube.com/watch?v=n4RjJKxsamQ",
+      "youtubeVideoId": "n4RjJKxsamQ",
+      "estimatedKey": "C",
+      "predictedChordEvents": 118,
+      "predictedBars": 87,
+      "avgBeatConfidence": 0.6144145148548846,
+      "avgBarConfidence": 0.6144145148548846,
+      "lowConfidenceBeatRatio": 0.23850574712643677,
+      "metrics": {
+        "predUnique": 15,
+        "refUnique": 11,
+        "uniqueOverlap": 8,
+        "setPrecision": 0.5333333333333333,
+        "setRecall": 0.7272727272727273,
+        "setF1": 0.6153846153846153,
+        "tokenPrecision": 0.4260869565217391,
+        "tokenRecall": 0.7945945945945946,
+        "tokenF1": 0.5547169811320753,
+        "missingReference": [
+          "A",
+          "B",
+          "E7"
+        ],
+        "unexpectedPredicted": [
+          "Cm",
+          "Cmaj7",
+          "Dm7",
+          "Em",
+          "Em7",
+          "Emaj7",
+          "Fmaj7"
+        ]
+      }
+    },
+    {
+      "id": "song_232",
+      "title": "\u05d0\u05d1\u05e1\u05d5\u05e8\u05d3",
+      "artist": "\u05e9\u05dc\u05de\u05d4 \u05d0\u05e8\u05e6\u05d9",
+      "youtubeUrl": "https://www.youtube.com/watch?v=fNThHjoimrY",
+      "youtubeVideoId": "fNThHjoimrY",
+      "estimatedKey": "E",
+      "predictedChordEvents": 123,
+      "predictedBars": 68,
+      "avgBeatConfidence": 0.6465681241403882,
+      "avgBarConfidence": 0.6472595176227481,
+      "lowConfidenceBeatRatio": 0.2222222222222222,
+      "metrics": {
+        "predUnique": 13,
+        "refUnique": 11,
+        "uniqueOverlap": 6,
+        "setPrecision": 0.46153846153846156,
+        "setRecall": 0.5454545454545454,
+        "setF1": 0.4999999999999999,
+        "tokenPrecision": 0.1970260223048327,
+        "tokenRecall": 0.5888888888888889,
+        "tokenF1": 0.29526462395543174,
+        "missingReference": [
+          "C",
+          "C#",
+          "C#7",
+          "E7",
+          "Em7"
+        ],
+        "unexpectedPredicted": [
+          "Am7",
+          "Amaj7",
+          "B",
+          "C#m",
+          "D#m",
+          "Em",
+          "G#m"
+        ]
+      }
+    },
+    {
+      "id": "song_235",
+      "title": "\u05d0\u05d4\u05d1\u05d4 \u05d1\u05ea \u05e2\u05e9\u05e8\u05d9\u05dd",
+      "artist": "\u05d9\u05d5\u05e1\u05d9 \u05d1\u05e0\u05d0\u05d9",
+      "youtubeUrl": "https://www.youtube.com/watch?v=7PxG0jfZX6k",
+      "youtubeVideoId": "7PxG0jfZX6k",
+      "estimatedKey": "Cm",
+      "predictedChordEvents": 147,
+      "predictedBars": 87,
+      "avgBeatConfidence": 0.5441812382099213,
+      "avgBarConfidence": 0.5442235103131435,
+      "lowConfidenceBeatRatio": 0.276657060518732,
+      "metrics": {
+        "predUnique": 19,
+        "refUnique": 13,
+        "uniqueOverlap": 10,
+        "setPrecision": 0.5263157894736842,
+        "setRecall": 0.7692307692307693,
+        "setF1": 0.625,
+        "tokenPrecision": 0.27089337175792505,
+        "tokenRecall": 0.8173913043478261,
+        "tokenF1": 0.4069264069264069,
+        "missingReference": [
+          "B",
+          "C#7",
+          "F#"
+        ],
+        "unexpectedPredicted": [
+          "D#m",
+          "D#maj7",
+          "Dm",
+          "Dm7",
+          "Fmaj7",
+          "G#m",
+          "G#maj7",
+          "Gm",
+          "Gmaj7"
+        ]
+      }
+    },
+    {
+      "id": "song_237",
+      "title": "\u05d0\u05d4\u05d1\u05ea\u05d9\u05d4",
+      "artist": "\u05e9\u05dc\u05de\u05d4 \u05d0\u05e8\u05e6\u05d9",
+      "youtubeUrl": "https://www.youtube.com/watch?v=19qoWmBJVRc",
+      "youtubeVideoId": "19qoWmBJVRc",
+      "estimatedKey": "D",
+      "predictedChordEvents": 190,
+      "predictedBars": 102,
+      "avgBeatConfidence": 0.5325324668392383,
+      "avgBarConfidence": 0.5342710167443784,
+      "lowConfidenceBeatRatio": 0.2733990147783251,
+      "metrics": {
+        "predUnique": 28,
+        "refUnique": 15,
+        "uniqueOverlap": 12,
+        "setPrecision": 0.42857142857142855,
+        "setRecall": 0.8,
+        "setF1": 0.5581395348837209,
+        "tokenPrecision": 0.2698019801980198,
+        "tokenRecall": 0.7730496453900709,
+        "tokenF1": 0.39999999999999997,
+        "missingReference": [
+          "B7",
+          "C#7",
+          "G#"
+        ],
+        "unexpectedPredicted": [
+          "A7",
+          "Am7",
+          "Amaj7",
+          "Bm7",
+          "Bmaj7",
+          "C#m",
+          "C#m7",
+          "C#maj7",
+          "Cm",
+          "Dm",
+          "Dmaj7",
+          "Em7",
+          "Emaj7",
+          "F#m7",
+          "Gm",
+          "Gmaj7"
+        ]
+      }
+    },
+    {
+      "id": "song_238",
+      "title": "\u05d0\u05d4\u05d5\u05d1\u05ea\u05d9",
+      "artist": "\u05de\u05e9\u05d9\u05e0\u05d4",
+      "youtubeUrl": "https://www.youtube.com/watch?v=Hd9ubTcJc7E",
+      "youtubeVideoId": "Hd9ubTcJc7E",
+      "estimatedKey": "Am",
+      "predictedChordEvents": 85,
+      "predictedBars": 59,
+      "avgBeatConfidence": 0.609060362714276,
+      "avgBarConfidence": 0.6083193837237394,
+      "lowConfidenceBeatRatio": 0.21794871794871795,
+      "metrics": {
+        "predUnique": 9,
+        "refUnique": 7,
+        "uniqueOverlap": 6,
+        "setPrecision": 0.6666666666666666,
+        "setRecall": 0.8571428571428571,
+        "setF1": 0.75,
+        "tokenPrecision": 0.2918454935622318,
+        "tokenRecall": 0.7083333333333334,
+        "tokenF1": 0.4133738601823709,
+        "missingReference": [
+          "A7"
+        ],
+        "unexpectedPredicted": [
+          "Dm7",
+          "Fmaj7",
+          "G"
+        ]
+      }
+    },
+    {
+      "id": "song_239",
+      "title": "\u05d0\u05d5\u05d4\u05d1 \u05dc\u05d4\u05d9\u05d5\u05ea \u05d1\u05d1\u05d9\u05ea",
+      "artist": "\u05d0\u05e8\u05d9\u05e7 \u05d0\u05d9\u05d9\u05e0\u05e9\u05d8\u05d9\u05d9\u05df",
+      "youtubeUrl": "https://www.youtube.com/watch?v=yXll9VNF118",
+      "youtubeVideoId": "yXll9VNF118",
+      "estimatedKey": "Fm",
+      "predictedChordEvents": 173,
+      "predictedBars": 145,
+      "avgBeatConfidence": 0.5018292906272102,
+      "avgBarConfidence": 0.502117012833658,
+      "lowConfidenceBeatRatio": 0.3022452504317789,
+      "metrics": {
+        "predUnique": 21,
+        "refUnique": 7,
+        "uniqueOverlap": 6,
+        "setPrecision": 0.2857142857142857,
+        "setRecall": 0.8571428571428571,
+        "setF1": 0.42857142857142855,
+        "tokenPrecision": 0.1526032315978456,
+        "tokenRecall": 0.9550561797752809,
+        "tokenF1": 0.2631578947368421,
+        "missingReference": [
+          "Gm"
+        ],
+        "unexpectedPredicted": [
+          "A#7",
+          "A#m",
+          "A#m7",
+          "A#maj7",
+          "Amaj7",
+          "C#",
+          "Cm",
+          "Cm7",
+          "D#",
+          "Dm7",
+          "Dmaj7",
+          "F",
+          "G",
+          "G#maj7",
+          "Gmaj7"
+        ]
+      }
+    },
+    {
+      "id": "song_252",
+      "title": "\u05d0\u05dc \u05ea\u05d3\u05d0\u05d2",
+      "artist": "\u05d0\u05d1\u05d9\u05d1 \u05d2\u05e4\u05df",
+      "youtubeUrl": "https://www.youtube.com/watch?v=2CBnFXXpAHg",
+      "youtubeVideoId": "2CBnFXXpAHg",
+      "estimatedKey": "D",
+      "predictedChordEvents": 83,
+      "predictedBars": 53,
+      "avgBeatConfidence": 0.5180333882335777,
+      "avgBarConfidence": 0.5192735193268814,
+      "lowConfidenceBeatRatio": 0.32701421800947866,
+      "metrics": {
+        "predUnique": 10,
+        "refUnique": 7,
+        "uniqueOverlap": 5,
+        "setPrecision": 0.5,
+        "setRecall": 0.7142857142857143,
+        "setF1": 0.588235294117647,
+        "tokenPrecision": 0.22488038277511962,
+        "tokenRecall": 0.8703703703703703,
+        "tokenF1": 0.3574144486692015,
+        "missingReference": [
+          "Bm",
+          "C#"
+        ],
+        "unexpectedPredicted": [
+          "Am",
+          "Dm",
+          "Dmaj7",
+          "Em7",
+          "Gm"
+        ]
+      }
+    },
+    {
+      "id": "song_253",
+      "title": "\u05d0\u05dc \u05ea\u05e9\u05d8\u05d4 \u05d1\u05d0\u05d4\u05d1\u05d4",
+      "artist": "\u05e2\u05d5\u05d6\u05d9\u05d4 \u05e6\u05d3\u05d5\u05e7",
+      "youtubeUrl": "https://www.youtube.com/watch?v=gX-_BAUHppg",
+      "youtubeVideoId": "gX-_BAUHppg",
+      "estimatedKey": "Cm",
+      "predictedChordEvents": 99,
+      "predictedBars": 61,
+      "avgBeatConfidence": 0.6135265757130847,
+      "avgBarConfidence": 0.6135265757130847,
+      "lowConfidenceBeatRatio": 0.19262295081967212,
+      "metrics": {
+        "predUnique": 17,
+        "refUnique": 10,
+        "uniqueOverlap": 8,
+        "setPrecision": 0.47058823529411764,
+        "setRecall": 0.8,
+        "setF1": 0.5925925925925927,
+        "tokenPrecision": 0.3168724279835391,
+        "tokenRecall": 0.875,
+        "tokenF1": 0.4652567975830815,
+        "missingReference": [
+          "B",
+          "C7"
+        ],
+        "unexpectedPredicted": [
+          "Bm",
+          "C",
+          "D#maj7",
+          "Dm",
+          "F",
+          "Fm7",
+          "G#maj7",
+          "G7",
+          "Gm"
+        ]
+      }
+    },
+    {
+      "id": "song_256",
+      "title": "\u05d0\u05dd \u05d4\u05d9\u05d9\u05ea\u05d9 \u05e9\u05e8 \u05dc\u05da",
+      "artist": "\u05d9\u05d2\u05d0\u05dc \u05d1\u05e9\u05df",
+      "youtubeUrl": "https://www.youtube.com/watch?v=yxad4tPlVPo",
+      "youtubeVideoId": "yxad4tPlVPo",
+      "estimatedKey": "G",
+      "predictedChordEvents": 127,
+      "predictedBars": 64,
+      "avgBeatConfidence": 0.5728382799732916,
+      "avgBarConfidence": 0.5749500215371393,
+      "lowConfidenceBeatRatio": 0.2755905511811024,
+      "metrics": {
+        "predUnique": 21,
+        "refUnique": 15,
+        "uniqueOverlap": 11,
+        "setPrecision": 0.5238095238095238,
+        "setRecall": 0.7333333333333333,
+        "setF1": 0.611111111111111,
+        "tokenPrecision": 0.3031496062992126,
+        "tokenRecall": 0.7938144329896907,
+        "tokenF1": 0.43874643874643876,
+        "missingReference": [
+          "C7",
+          "F#",
+          "F7",
+          "G7"
+        ],
+        "unexpectedPredicted": [
+          "A",
+          "Am7",
+          "Amaj7",
+          "Cm",
+          "Dm7",
+          "Em7",
+          "Fm7",
+          "Fmaj7",
+          "Gm7",
+          "Gmaj7"
+        ]
+      }
+    },
+    {
+      "id": "song_282",
+      "title": "\u05d1\u05d7\u05d5\u05dd \u05e9\u05dc \u05ea\u05dc \u05d0\u05d1\u05d9\u05d1",
+      "artist": "\u05e9\u05e8\u05d9\u05ea \u05d7\u05d3\u05d3",
+      "youtubeUrl": "https://www.youtube.com/watch?v=MFNa47awyhU",
+      "youtubeVideoId": "MFNa47awyhU",
+      "estimatedKey": "Dm",
+      "predictedChordEvents": 97,
+      "predictedBars": 58,
+      "avgBeatConfidence": 0.6228583351924537,
+      "avgBarConfidence": 0.6228627440912955,
+      "lowConfidenceBeatRatio": 0.20869565217391303,
+      "metrics": {
+        "predUnique": 21,
+        "refUnique": 13,
+        "uniqueOverlap": 13,
+        "setPrecision": 0.6190476190476191,
+        "setRecall": 1.0,
+        "setF1": 0.7647058823529412,
+        "tokenPrecision": 0.32751091703056767,
+        "tokenRecall": 0.9493670886075949,
+        "tokenF1": 0.487012987012987,
+        "missingReference": [],
+        "unexpectedPredicted": [
+          "A#maj7",
+          "A7",
+          "Cm",
+          "D#m",
+          "Fm",
+          "Fmaj7",
+          "G#",
+          "Gm7"
+        ]
+      }
+    },
+    {
+      "id": "song_283",
+      "title": "\u05d1\u05d9\u05d5\u05dd \u05d5\u05d1\u05dc\u05d9\u05dc\u05d4",
+      "artist": "\u05db\u05d5\u05d5\u05e8\u05ea",
+      "youtubeUrl": "https://www.youtube.com/watch?v=yBpjwEw_sNc",
+      "youtubeVideoId": "yBpjwEw_sNc",
+      "estimatedKey": "C",
+      "predictedChordEvents": 164,
+      "predictedBars": 98,
+      "avgBeatConfidence": 0.5722697429145498,
+      "avgBarConfidence": 0.573859295548746,
+      "lowConfidenceBeatRatio": 0.23333333333333334,
+      "metrics": {
+        "predUnique": 18,
+        "refUnique": 11,
+        "uniqueOverlap": 9,
+        "setPrecision": 0.5,
+        "setRecall": 0.8181818181818182,
+        "setF1": 0.6206896551724137,
+        "tokenPrecision": 0.2210796915167095,
+        "tokenRecall": 0.8113207547169812,
+        "tokenF1": 0.3474747474747475,
+        "missingReference": [
+          "Cm7",
+          "D"
+        ],
+        "unexpectedPredicted": [
+          "A#maj7",
+          "Am",
+          "Am7",
+          "C7",
+          "Cmaj7",
+          "Dm7",
+          "Em",
+          "Fmaj7",
+          "G7"
+        ]
+      }
+    },
+    {
+      "id": "song_284",
+      "title": "\u05d1\u05d9\u05d5\u05dd \u05e9\u05dc \u05d4\u05e4\u05e6\u05e6\u05d4",
+      "artist": "\u05e8\u05de\u05d9 \u05e7\u05dc\u05d9\u05e0\u05e9\u05d8\u05d9\u05d9\u05df",
+      "youtubeUrl": "https://www.youtube.com/watch?v=50Mmd3bJLjM",
+      "youtubeVideoId": "50Mmd3bJLjM",
+      "estimatedKey": "C",
+      "predictedChordEvents": 117,
+      "predictedBars": 82,
+      "avgBeatConfidence": 0.5121707543338936,
+      "avgBarConfidence": 0.511652740228121,
+      "lowConfidenceBeatRatio": 0.35276073619631904,
+      "metrics": {
+        "predUnique": 14,
+        "refUnique": 17,
+        "uniqueOverlap": 11,
+        "setPrecision": 0.7857142857142857,
+        "setRecall": 0.6470588235294118,
+        "setF1": 0.7096774193548386,
+        "tokenPrecision": 0.38153846153846155,
+        "tokenRecall": 0.7209302325581395,
+        "tokenF1": 0.49899396378269617,
+        "missingReference": [
+          "A#",
+          "Cm7",
+          "F#",
+          "Fm7",
+          "G#",
+          "G7"
+        ],
+        "unexpectedPredicted": [
+          "Cmaj7",
+          "Dm7",
+          "Fmaj7"
+        ]
+      }
+    },
+    {
+      "id": "song_288",
+      "title": "\u05d1\u05dc\u05d3\u05d4 \u05dc\u05d0\u05d9\u05e9\u05d4",
+      "artist": "\u05e0\u05d5\u05e8\u05d9\u05ea \u05d2\u05dc\u05e8\u05d5\u05df",
+      "youtubeUrl": "https://www.youtube.com/watch?v=zvqARj7Mfto",
+      "youtubeVideoId": "zvqARj7Mfto",
+      "estimatedKey": "Bb",
+      "predictedChordEvents": 118,
+      "predictedBars": 75,
+      "avgBeatConfidence": 0.550796534443677,
+      "avgBarConfidence": 0.5495464342851792,
+      "lowConfidenceBeatRatio": 0.30201342281879195,
+      "metrics": {
+        "predUnique": 31,
+        "refUnique": 23,
+        "uniqueOverlap": 11,
+        "setPrecision": 0.3548387096774194,
+        "setRecall": 0.4782608695652174,
+        "setF1": 0.40740740740740744,
+        "tokenPrecision": 0.15151515151515152,
+        "tokenRecall": 0.42452830188679247,
+        "tokenF1": 0.2233250620347395,
+        "missingReference": [
+          "Am",
+          "B7",
+          "C",
+          "C7",
+          "D#7",
+          "Dm7",
+          "E7",
+          "Em",
+          "Em7",
+          "F#m7",
+          "G7",
+          "Gm7"
+        ],
+        "unexpectedPredicted": [
+          "A#m",
+          "A#maj7",
+          "Amaj7",
+          "Bm",
+          "C#7",
+          "C#maj7",
+          "Cm",
+          "Cm7",
+          "Cmaj7",
+          "D",
+          "D#",
+          "Dmaj7",
+          "F#",
+          "F#m",
+          "F#maj7",
+          "F7",
+          "Fm",
+          "G#m7",
+          "G#maj7",
+          "Gm"
+        ]
+      }
+    },
+    {
+      "id": "song_510",
+      "title": "\u05ea\u05d7\u05d6\u05e8\u05d9",
+      "artist": "\u05d0\u05e8\u05e7\u05d3\u05d9 \u05d3\u05d5\u05db\u05d9\u05df \u05d5\u05d0\u05d9\u05d9\u05dc \u05d2\u05d5\u05dc\u05df",
+      "youtubeUrl": "https://www.youtube.com/watch?v=8u-h_-Hz0b0",
+      "youtubeVideoId": "8u-h_-Hz0b0",
+      "estimatedKey": "E",
+      "predictedChordEvents": 139,
+      "predictedBars": 87,
+      "avgBeatConfidence": 0.6267919480273453,
+      "avgBarConfidence": 0.6267919480273453,
+      "lowConfidenceBeatRatio": 0.22701149425287356,
+      "metrics": {
+        "predUnique": 13,
+        "refUnique": 12,
+        "uniqueOverlap": 9,
+        "setPrecision": 0.6923076923076923,
+        "setRecall": 0.75,
+        "setF1": 0.7199999999999999,
+        "tokenPrecision": 0.3659942363112392,
+        "tokenRecall": 0.927007299270073,
+        "tokenF1": 0.5247933884297521,
+        "missingReference": [
+          "B7",
+          "C",
+          "G#7"
+        ],
+        "unexpectedPredicted": [
+          "Amaj7",
+          "C#m7",
+          "D#m",
+          "Emaj7"
+        ]
+      }
+    },
+    {
+      "id": "song_517",
+      "title": "\u05ea\u05e9\u05d0\u05d9\u05e8\u05d9 \u05dc\u05d9 \u05de\u05e7\u05d5\u05dd \u05dc\u05d7\u05d1\u05e7 \u05d0\u05d5\u05ea\u05da",
+      "artist": "\u05d0\u05d1\u05d8\u05d9\u05e4\u05d5\u05e1",
+      "youtubeUrl": "https://www.youtube.com/watch?v=UwNM-nbaI_o",
+      "youtubeVideoId": "UwNM-nbaI_o",
+      "estimatedKey": "F#m",
+      "predictedChordEvents": 96,
+      "predictedBars": 60,
+      "avgBeatConfidence": 0.7150476485829409,
+      "avgBarConfidence": 0.7116429345129431,
+      "lowConfidenceBeatRatio": 0.12605042016806722,
+      "metrics": {
+        "predUnique": 15,
+        "refUnique": 9,
+        "uniqueOverlap": 9,
+        "setPrecision": 0.6,
+        "setRecall": 1.0,
+        "setF1": 0.7499999999999999,
+        "tokenPrecision": 0.3291139240506329,
+        "tokenRecall": 1.0,
+        "tokenF1": 0.4952380952380952,
+        "missingReference": [],
+        "unexpectedPredicted": [
+          "A",
+          "Amaj7",
+          "Dm",
+          "Dmaj7",
+          "G#",
+          "G#m"
+        ]
+      }
+    },
+    {
+      "id": "song_518",
+      "title": "\u05ea\u05ea\u05d0\u05e8\u05d5 \u05dc\u05db\u05dd",
+      "artist": "\u05e9\u05dc\u05de\u05d4 \u05d0\u05e8\u05e6\u05d9",
+      "youtubeUrl": "https://www.youtube.com/watch?v=Y0KxZz5k-RE",
+      "youtubeVideoId": "Y0KxZz5k-RE",
+      "estimatedKey": "Bb",
+      "predictedChordEvents": 152,
+      "predictedBars": 84,
+      "avgBeatConfidence": 0.6520231625910727,
+      "avgBarConfidence": 0.6532321631349471,
+      "lowConfidenceBeatRatio": 0.20059880239520958,
+      "metrics": {
+        "predUnique": 13,
+        "refUnique": 6,
+        "uniqueOverlap": 6,
+        "setPrecision": 0.46153846153846156,
+        "setRecall": 1.0,
+        "setF1": 0.631578947368421,
+        "tokenPrecision": 0.38023952095808383,
+        "tokenRecall": 1.0,
+        "tokenF1": 0.5509761388286334,
+        "missingReference": [],
+        "unexpectedPredicted": [
+          "A",
+          "A#maj7",
+          "Am",
+          "Cm",
+          "D#maj7",
+          "Dm7",
+          "Gm7"
+        ]
+      }
+    }
+  ],
+  "failures": []
+}

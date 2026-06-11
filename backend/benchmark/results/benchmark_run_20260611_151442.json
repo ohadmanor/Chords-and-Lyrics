@@ -1,0 +1,310 @@
+{
+  "createdAt": "2026-06-11T15:14:42.951008Z",
+  "offset": 0,
+  "limit": 6,
+  "summary": {
+    "evaluated": 6,
+    "failed": 0,
+    "meanSetF1": 0.5665010588609909,
+    "medianSetF1": 0.542997542997543,
+    "meanTokenF1": 0.3820492465501012,
+    "meanBarConfidence": 0.5525597328911664,
+    "worstBySetF1": [
+      {
+        "id": "song_5",
+        "title": "All Right Now",
+        "artist": "Free",
+        "setF1": 0.3225806451612903,
+        "tokenF1": 0.3024390243902439,
+        "avgBarConfidence": 0.4727791358040597
+      },
+      {
+        "id": "song_2",
+        "title": "Against All Odds",
+        "artist": "Phil Collins",
+        "setF1": 0.5263157894736842,
+        "tokenF1": 0.2732447817836813,
+        "avgBarConfidence": 0.6098758869259227
+      },
+      {
+        "id": "song_6",
+        "title": "Almaz",
+        "artist": "Randy Crawford",
+        "setF1": 0.5405405405405405,
+        "tokenF1": 0.26315789473684215,
+        "avgBarConfidence": 0.5951046503645218
+      },
+      {
+        "id": "song_90",
+        "title": "If It Makes You Happy",
+        "artist": "Sheryl Crow",
+        "setF1": 0.5454545454545455,
+        "tokenF1": 0.30882352941176466,
+        "avgBarConfidence": 0.5883989153014181
+      },
+      {
+        "id": "song_3",
+        "title": "Ain\u2019t No Sunshine",
+        "artist": "Bill Withers",
+        "setF1": 0.7272727272727273,
+        "tokenF1": 0.6615384615384615,
+        "avgBarConfidence": 0.4655495482297015
+      },
+      {
+        "id": "song_4",
+        "title": "All Out Of Love",
+        "artist": "Air Supply",
+        "setF1": 0.7368421052631577,
+        "tokenF1": 0.48309178743961356,
+        "avgBarConfidence": 0.5836502607213748
+      }
+    ]
+  },
+  "results": [
+    {
+      "id": "song_2",
+      "title": "Against All Odds",
+      "artist": "Phil Collins",
+      "youtubeUrl": "https://www.youtube.com/watch?v=SWSQS06i7-w",
+      "youtubeVideoId": "SWSQS06i7-w",
+      "estimatedKey": "Ab",
+      "predictedChordEvents": 102,
+      "predictedBars": 93,
+      "avgBeatConfidence": 0.6101159898216043,
+      "avgBarConfidence": 0.6098758869259227,
+      "lowConfidenceBeatRatio": 0.19946091644204852,
+      "metrics": {
+        "predUnique": 18,
+        "refUnique": 20,
+        "uniqueOverlap": 10,
+        "setPrecision": 0.5555555555555556,
+        "setRecall": 0.5,
+        "setF1": 0.5263157894736842,
+        "tokenPrecision": 0.19618528610354224,
+        "tokenRecall": 0.45,
+        "tokenF1": 0.2732447817836813,
+        "missingReference": [
+          "A",
+          "B",
+          "C",
+          "Cm7",
+          "D",
+          "E",
+          "Em",
+          "F",
+          "F#7",
+          "G"
+        ],
+        "unexpectedPredicted": [
+          "A#",
+          "A#7",
+          "C#m",
+          "Cm",
+          "F#maj7",
+          "Fm7",
+          "G#7",
+          "G#maj7"
+        ]
+      }
+    },
+    {
+      "id": "song_3",
+      "title": "Ain\u2019t No Sunshine",
+      "artist": "Bill Withers",
+      "youtubeUrl": "https://www.youtube.com/watch?v=YuKfiH0Scao",
+      "youtubeVideoId": "YuKfiH0Scao",
+      "estimatedKey": "Am",
+      "predictedChordEvents": 71,
+      "predictedBars": 39,
+      "avgBeatConfidence": 0.4669624553294124,
+      "avgBarConfidence": 0.4655495482297015,
+      "lowConfidenceBeatRatio": 0.3961038961038961,
+      "metrics": {
+        "predUnique": 14,
+        "refUnique": 8,
+        "uniqueOverlap": 8,
+        "setPrecision": 0.5714285714285714,
+        "setRecall": 1.0,
+        "setF1": 0.7272727272727273,
+        "tokenPrecision": 0.5620915032679739,
+        "tokenRecall": 0.8037383177570093,
+        "tokenF1": 0.6615384615384615,
+        "missingReference": [],
+        "unexpectedPredicted": [
+          "Am7",
+          "Amaj7",
+          "C",
+          "Em7",
+          "Emaj7",
+          "Gm"
+        ]
+      }
+    },
+    {
+      "id": "song_4",
+      "title": "All Out Of Love",
+      "artist": "Air Supply",
+      "youtubeUrl": "https://www.youtube.com/watch?v=JWdZEumNRmI",
+      "youtubeVideoId": "JWdZEumNRmI",
+      "estimatedKey": "C",
+      "predictedChordEvents": 97,
+      "predictedBars": 100,
+      "avgBeatConfidence": 0.5836502607213748,
+      "avgBarConfidence": 0.5836502607213748,
+      "lowConfidenceBeatRatio": 0.2575,
+      "metrics": {
+        "predUnique": 9,
+        "refUnique": 10,
+        "uniqueOverlap": 7,
+        "setPrecision": 0.7777777777777778,
+        "setRecall": 0.7,
+        "setF1": 0.7368421052631577,
+        "tokenPrecision": 0.37593984962406013,
+        "tokenRecall": 0.6756756756756757,
+        "tokenF1": 0.48309178743961356,
+        "missingReference": [
+          "A",
+          "B",
+          "E"
+        ],
+        "unexpectedPredicted": [
+          "Bm",
+          "Fmaj7"
+        ]
+      }
+    },
+    {
+      "id": "song_5",
+      "title": "All Right Now",
+      "artist": "Free",
+      "youtubeUrl": "https://www.youtube.com/watch?v=7cQ4jNDRTOo",
+      "youtubeVideoId": "7cQ4jNDRTOo",
+      "estimatedKey": "A",
+      "predictedChordEvents": 204,
+      "predictedBars": 167,
+      "avgBeatConfidence": 0.47404545714375007,
+      "avgBarConfidence": 0.4727791358040597,
+      "lowConfidenceBeatRatio": 0.3609022556390977,
+      "metrics": {
+        "predUnique": 23,
+        "refUnique": 8,
+        "uniqueOverlap": 5,
+        "setPrecision": 0.21739130434782608,
+        "setRecall": 0.625,
+        "setF1": 0.3225806451612903,
+        "tokenPrecision": 0.18731117824773413,
+        "tokenRecall": 0.7848101265822784,
+        "tokenF1": 0.3024390243902439,
+        "missingReference": [
+          "B",
+          "F",
+          "F#"
+        ],
+        "unexpectedPredicted": [
+          "Am",
+          "Am7",
+          "Amaj7",
+          "Bm",
+          "Bm7",
+          "C#m7",
+          "Dm7",
+          "Dmaj7",
+          "E7",
+          "Em",
+          "Em7",
+          "F#m",
+          "F#m7",
+          "F#maj7",
+          "G#",
+          "G#maj7",
+          "Gm",
+          "Gmaj7"
+        ]
+      }
+    },
+    {
+      "id": "song_6",
+      "title": "Almaz",
+      "artist": "Randy Crawford",
+      "youtubeUrl": "https://www.youtube.com/watch?v=n6vlSgaKeG8",
+      "youtubeVideoId": "n6vlSgaKeG8",
+      "estimatedKey": "Am",
+      "predictedChordEvents": 183,
+      "predictedBars": 137,
+      "avgBeatConfidence": 0.5935950932333078,
+      "avgBarConfidence": 0.5951046503645218,
+      "lowConfidenceBeatRatio": 0.22568807339449543,
+      "metrics": {
+        "predUnique": 23,
+        "refUnique": 14,
+        "uniqueOverlap": 10,
+        "setPrecision": 0.43478260869565216,
+        "setRecall": 0.7142857142857143,
+        "setF1": 0.5405405405405405,
+        "tokenPrecision": 0.16544117647058823,
+        "tokenRecall": 0.6428571428571429,
+        "tokenF1": 0.26315789473684215,
+        "missingReference": [
+          "A#7",
+          "A#m7",
+          "B",
+          "Gm7"
+        ],
+        "unexpectedPredicted": [
+          "A#",
+          "A#maj7",
+          "Am",
+          "Am7",
+          "Amaj7",
+          "Bm",
+          "Bm7",
+          "Dm7",
+          "E7",
+          "Emaj7",
+          "Fmaj7",
+          "G",
+          "G#maj7"
+        ]
+      }
+    },
+    {
+      "id": "song_90",
+      "title": "If It Makes You Happy",
+      "artist": "Sheryl Crow",
+      "youtubeUrl": "https://www.youtube.com/watch?v=dyihQtBes1I",
+      "youtubeVideoId": "dyihQtBes1I",
+      "estimatedKey": "G",
+      "predictedChordEvents": 95,
+      "predictedBars": 107,
+      "avgBeatConfidence": 0.58829481724175,
+      "avgBarConfidence": 0.5883989153014181,
+      "lowConfidenceBeatRatio": 0.2107728337236534,
+      "metrics": {
+        "predUnique": 13,
+        "refUnique": 9,
+        "uniqueOverlap": 6,
+        "setPrecision": 0.46153846153846156,
+        "setRecall": 0.6666666666666666,
+        "setF1": 0.5454545454545455,
+        "tokenPrecision": 0.2,
+        "tokenRecall": 0.6774193548387096,
+        "tokenF1": 0.30882352941176466,
+        "missingReference": [
+          "B",
+          "E",
+          "F"
+        ],
+        "unexpectedPredicted": [
+          "Am7",
+          "Bm",
+          "Bm7",
+          "Dmaj7",
+          "Em7",
+          "Gm",
+          "Gmaj7"
+        ]
+      }
+    }
+  ],
+  "failures": []
+}

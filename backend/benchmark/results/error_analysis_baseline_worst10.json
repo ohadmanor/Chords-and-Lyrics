@@ -1,0 +1,495 @@
+{
+  "source": "backend\\benchmark\\results\\benchmark_run_20260611_154922.json",
+  "evaluated": 24,
+  "failed": 0,
+  "meanSetF1": 0.5956254068494198,
+  "meanTokenF1": 0.40058683131470896,
+  "meanBarConfidence": 0.5670832370172951,
+  "analyzedWorstN": 10,
+  "topMissingRootsWorstN": [
+    [
+      "E",
+      8
+    ],
+    [
+      "B",
+      7
+    ],
+    [
+      "C",
+      6
+    ],
+    [
+      "G",
+      6
+    ],
+    [
+      "F",
+      4
+    ],
+    [
+      "C#",
+      4
+    ],
+    [
+      "F#",
+      3
+    ],
+    [
+      "A",
+      3
+    ],
+    [
+      "D",
+      3
+    ],
+    [
+      "A#",
+      3
+    ]
+  ],
+  "topUnexpectedRootsWorstN": [
+    [
+      "A",
+      16
+    ],
+    [
+      "D",
+      12
+    ],
+    [
+      "F#",
+      12
+    ],
+    [
+      "B",
+      11
+    ],
+    [
+      "E",
+      11
+    ],
+    [
+      "G#",
+      10
+    ],
+    [
+      "A#",
+      10
+    ],
+    [
+      "C#",
+      9
+    ],
+    [
+      "G",
+      9
+    ],
+    [
+      "C",
+      8
+    ]
+  ],
+  "topMissingQualitiesWorstN": [
+    [
+      "maj",
+      25
+    ],
+    [
+      "dom7",
+      11
+    ],
+    [
+      "m7",
+      8
+    ],
+    [
+      "min",
+      5
+    ]
+  ],
+  "topUnexpectedQualitiesWorstN": [
+    [
+      "maj7",
+      39
+    ],
+    [
+      "min",
+      32
+    ],
+    [
+      "m7",
+      28
+    ],
+    [
+      "dom7",
+      10
+    ],
+    [
+      "maj",
+      10
+    ]
+  ],
+  "suspectedMajorMinorFlipRootsWorstN": [
+    [
+      "B",
+      3
+    ],
+    [
+      "C",
+      2
+    ],
+    [
+      "F#",
+      1
+    ],
+    [
+      "A",
+      1
+    ],
+    [
+      "G",
+      1
+    ],
+    [
+      "C#",
+      1
+    ],
+    [
+      "F",
+      1
+    ],
+    [
+      "E",
+      1
+    ]
+  ],
+  "worstSongs": [
+    {
+      "id": "song_5",
+      "title": "All Right Now",
+      "artist": "Free",
+      "setF1": 0.3225806451612903,
+      "tokenF1": 0.3024390243902439,
+      "avgBarConfidence": 0.4727791358040597,
+      "lowConfidenceBeatRatio": 0.3609022556390977,
+      "missingReference": [
+        "B",
+        "F",
+        "F#"
+      ],
+      "unexpectedPredicted": [
+        "Am",
+        "Am7",
+        "Amaj7",
+        "Bm",
+        "Bm7",
+        "C#m7",
+        "Dm7",
+        "Dmaj7",
+        "E7",
+        "Em",
+        "Em7",
+        "F#m",
+        "F#m7",
+        "F#maj7",
+        "G#",
+        "G#maj7",
+        "Gm",
+        "Gmaj7"
+      ],
+      "suspectedMajorMinorFlipRoots": [
+        "B",
+        "F#"
+      ]
+    },
+    {
+      "id": "song_288",
+      "title": "\u05d1\u05dc\u05d3\u05d4 \u05dc\u05d0\u05d9\u05e9\u05d4",
+      "artist": "\u05e0\u05d5\u05e8\u05d9\u05ea \u05d2\u05dc\u05e8\u05d5\u05df",
+      "setF1": 0.36363636363636365,
+      "tokenF1": 0.21339950372208438,
+      "avgBarConfidence": 0.5283859003835527,
+      "lowConfidenceBeatRatio": 0.30201342281879195,
+      "missingReference": [
+        "A",
+        "Am",
+        "B7",
+        "C",
+        "C7",
+        "D#7",
+        "Dm7",
+        "E7",
+        "Em",
+        "Em7",
+        "F#m7",
+        "G7",
+        "Gm7"
+      ],
+      "unexpectedPredicted": [
+        "A#m",
+        "A#maj7",
+        "Amaj7",
+        "Bmaj7",
+        "C#7",
+        "C#maj7",
+        "Cm",
+        "Cm7",
+        "Cmaj7",
+        "D",
+        "D#",
+        "D#m7",
+        "D#maj7",
+        "Dmaj7",
+        "F#",
+        "F#m",
+        "F#maj7",
+        "F7",
+        "Fm",
+        "G#m7"
+      ],
+      "suspectedMajorMinorFlipRoots": [
+        "A",
+        "C"
+      ]
+    },
+    {
+      "id": "song_239",
+      "title": "\u05d0\u05d5\u05d4\u05d1 \u05dc\u05d4\u05d9\u05d5\u05ea \u05d1\u05d1\u05d9\u05ea",
+      "artist": "\u05d0\u05e8\u05d9\u05e7 \u05d0\u05d9\u05d9\u05e0\u05e9\u05d8\u05d9\u05d9\u05df",
+      "setF1": 0.4444444444444444,
+      "tokenF1": 0.2631578947368421,
+      "avgBarConfidence": 0.49332549306633494,
+      "lowConfidenceBeatRatio": 0.29015544041450775,
+      "missingReference": [
+        "Gm"
+      ],
+      "unexpectedPredicted": [
+        "A#7",
+        "A#m",
+        "A#m7",
+        "A#maj7",
+        "Amaj7",
+        "C#maj7",
+        "Cm",
+        "Cm7",
+        "D#",
+        "Dm7",
+        "Dmaj7",
+        "F",
+        "G#maj7",
+        "Gmaj7"
+      ],
+      "suspectedMajorMinorFlipRoots": [
+        "G"
+      ]
+    },
+    {
+      "id": "song_232",
+      "title": "\u05d0\u05d1\u05e1\u05d5\u05e8\u05d3",
+      "artist": "\u05e9\u05dc\u05de\u05d4 \u05d0\u05e8\u05e6\u05d9",
+      "setF1": 0.4999999999999999,
+      "tokenF1": 0.28969359331476324,
+      "avgBarConfidence": 0.6251296236280532,
+      "lowConfidenceBeatRatio": 0.23333333333333334,
+      "missingReference": [
+        "C",
+        "C#",
+        "C#7",
+        "E7",
+        "Em7"
+      ],
+      "unexpectedPredicted": [
+        "Am7",
+        "Amaj7",
+        "B",
+        "C#m",
+        "D#m",
+        "Em",
+        "G#m"
+      ],
+      "suspectedMajorMinorFlipRoots": [
+        "C#"
+      ]
+    },
+    {
+      "id": "song_2",
+      "title": "Against All Odds",
+      "artist": "Phil Collins",
+      "setF1": 0.5263157894736842,
+      "tokenF1": 0.2732447817836813,
+      "avgBarConfidence": 0.6098758869259227,
+      "lowConfidenceBeatRatio": 0.19946091644204852,
+      "missingReference": [
+        "A",
+        "B",
+        "C",
+        "Cm7",
+        "D",
+        "E",
+        "Em",
+        "F",
+        "F#7",
+        "G"
+      ],
+      "unexpectedPredicted": [
+        "A#",
+        "A#7",
+        "C#m",
+        "Cm",
+        "F#maj7",
+        "Fm7",
+        "G#7",
+        "G#maj7"
+      ],
+      "suspectedMajorMinorFlipRoots": [
+        "C",
+        "F"
+      ]
+    },
+    {
+      "id": "song_252",
+      "title": "\u05d0\u05dc \u05ea\u05d3\u05d0\u05d2",
+      "artist": "\u05d0\u05d1\u05d9\u05d1 \u05d2\u05e4\u05df",
+      "setF1": 0.5263157894736842,
+      "tokenF1": 0.3574144486692015,
+      "avgBarConfidence": 0.5006859920690129,
+      "lowConfidenceBeatRatio": 0.32701421800947866,
+      "missingReference": [
+        "Bm",
+        "C#"
+      ],
+      "unexpectedPredicted": [
+        "Am",
+        "Amaj7",
+        "Dm",
+        "Dmaj7",
+        "E7",
+        "Em7",
+        "Gm"
+      ],
+      "suspectedMajorMinorFlipRoots": []
+    },
+    {
+      "id": "song_237",
+      "title": "\u05d0\u05d4\u05d1\u05ea\u05d9\u05d4",
+      "artist": "\u05e9\u05dc\u05de\u05d4 \u05d0\u05e8\u05e6\u05d9",
+      "setF1": 0.5333333333333333,
+      "tokenF1": 0.3412844036697248,
+      "avgBarConfidence": 0.5235955216086181,
+      "lowConfidenceBeatRatio": 0.2857142857142857,
+      "missingReference": [
+        "B7",
+        "C#7",
+        "G#"
+      ],
+      "unexpectedPredicted": [
+        "A7",
+        "Am7",
+        "Amaj7",
+        "Bm7",
+        "Bmaj7",
+        "C#m",
+        "C#m7",
+        "C#maj7",
+        "Cm",
+        "Cmaj7",
+        "Dm",
+        "Dmaj7",
+        "Em7",
+        "Emaj7",
+        "F#m7",
+        "F#maj7",
+        "Gm",
+        "Gmaj7"
+      ],
+      "suspectedMajorMinorFlipRoots": []
+    },
+    {
+      "id": "song_219",
+      "title": "Why Worry",
+      "artist": "Dire Straits",
+      "setF1": 0.5384615384615384,
+      "tokenF1": 0.2616216216216216,
+      "avgBarConfidence": 0.5983492178594315,
+      "lowConfidenceBeatRatio": 0.2538265306122449,
+      "missingReference": [
+        "A#",
+        "C",
+        "D",
+        "F",
+        "G"
+      ],
+      "unexpectedPredicted": [
+        "Bm",
+        "D#m",
+        "F#7",
+        "F#m",
+        "F#m7",
+        "G#m",
+        "G#m7"
+      ],
+      "suspectedMajorMinorFlipRoots": []
+    },
+    {
+      "id": "song_6",
+      "title": "Almaz",
+      "artist": "Randy Crawford",
+      "setF1": 0.5405405405405405,
+      "tokenF1": 0.26315789473684215,
+      "avgBarConfidence": 0.5951046503645218,
+      "lowConfidenceBeatRatio": 0.22568807339449543,
+      "missingReference": [
+        "A#7",
+        "A#m7",
+        "B",
+        "Gm7"
+      ],
+      "unexpectedPredicted": [
+        "A#",
+        "A#maj7",
+        "Am",
+        "Am7",
+        "Amaj7",
+        "Bm",
+        "Bm7",
+        "Dm7",
+        "E7",
+        "Emaj7",
+        "Fmaj7",
+        "G",
+        "G#maj7"
+      ],
+      "suspectedMajorMinorFlipRoots": [
+        "B"
+      ]
+    },
+    {
+      "id": "song_90",
+      "title": "If It Makes You Happy",
+      "artist": "Sheryl Crow",
+      "setF1": 0.5454545454545455,
+      "tokenF1": 0.30882352941176466,
+      "avgBarConfidence": 0.5883989153014181,
+      "lowConfidenceBeatRatio": 0.2107728337236534,
+      "missingReference": [
+        "B",
+        "E",
+        "F"
+      ],
+      "unexpectedPredicted": [
+        "Am7",
+        "Bm",
+        "Bm7",
+        "Dmaj7",
+        "Em7",
+        "Gm",
+        "Gmaj7"
+      ],
+      "suspectedMajorMinorFlipRoots": [
+        "B",
+        "E"
+      ]
+    }
+  ]
+}

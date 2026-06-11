@@ -53,11 +53,20 @@ export class ApiService {
     return res.json();
   }
 
-  async generateChordsheet(chords: ChordData[], lyrics: LyricsLine[], duration: number): Promise<any> {
+  async generateChordsheet(chords: ChordData[], lyrics: LyricsLine[], duration: number, bars?: BarData[]): Promise<any> {
     const res = await fetch(`${this.baseUrl}/api/generate-chordsheet`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chords, lyrics, duration })
+      body: JSON.stringify({ chords, lyrics, duration, bars })
+    });
+    return res.json();
+  }
+
+  async alignLyricsForSync(lyricsText: string, referenceLyrics: LyricsLine[], selectedStartTime: number): Promise<any> {
+    const res = await fetch(`${this.baseUrl}/api/align-lyrics`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lyricsText, referenceLyrics, selectedStartTime })
     });
     return res.json();
   }
